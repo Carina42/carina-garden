@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width,initial-scale=1" name="viewport"/>
-  <title>小娜花园 · 写作</title>
-  
-  <link href="style.css" rel="stylesheet"/>
-  <link href="chatbot.css" rel="stylesheet"/>
-  <link href="manifest.json" rel="manifest"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>写作追踪 · 小娜花园</title>
+  <meta name="description" content="记录目标、字数与四季节奏，让写作的火慢慢旺起来。"/>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8aa39a">
+  <link rel="stylesheet" href="style.css"/>
   
   <style>
-    /* 引入 Google 字体：专门给伍尔夫语录使用的优雅衬线体 */
     @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:italic&display=swap');
     
     #woolfQuote {
@@ -23,48 +22,36 @@
       margin-top: 8px;
     }
     #woolfQuoteSource {
-      font-family: system-ui, -apple-system, sans-serif;
       font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 1px;
       color: var(--accent);
       margin-top: 6px;
       display: block;
     }
-
-    /* 解决“拥挤感”：只增加间距，不改动功能 */
+    /* 解决拥挤感：参考阅读页的间距 */
     .main-content {
       display: flex;
       flex-direction: column;
-      gap: 32px; /* 增加卡片之间的呼吸感 */
-      padding-top: 20px;
+      gap: 28px;
     }
     .card {
-      padding: 28px !important; /* 增加卡片内部留白 */
+      padding: 24px !important;
     }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
+    .writing-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-    @media (max-width: 640px) {
-      .summary-grid { grid-template-columns: 1fr; }
-    }
+    .writing-row .input { flex: 1; min-width: 120px; }
   </style>
 
-  <script defer src="themePicker.js"></script>
-  <script defer src="pwa.js"></script>
   <script defer src="writing.js"></script>
-  <script defer src="chatbot.js"></script>
   <script defer src="woolfQuotes.js"></script>
   <script defer src="quoteInit.js"></script>
-  <script defer src="weather.js"></script>
-  <script defer src="sync.js"></script>
-</head>
-
+  </head>
 <body class="morandi-theme" data-theme="fern" data-weather="unknown">
-
   <div class="garden-frame" aria-hidden="true">
     <div id="weatherLayer" class="weather-layer" aria-hidden="true"></div>
     <button class="ornament corner tl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
@@ -77,55 +64,64 @@
     <header class="site-header">
       <div class="brand">
         <h1>小娜花园 <span class="brand-emoji">✍️</span></h1>
-        <div class="tagline">
-          <span id="woolfQuote">"I am rooted, but I flow."</span>
-          <cite id="woolfQuoteSource">— The Waves</cite>
-        </div>
+        <div class="tagline">记录目标、字数与四季节奏，让写作的火慢慢旺起来</div>
       </div>
       
-      <div class="header-side">
-        <div id="weather-widget" class="weather-widget">
-          <span id="wxIcon">🌿</span>
-          <span id="wxDesc">加载中...</span>
-        </div>
-        <button id="themeBtn" class="btn btn-ghost sparkle">🎨 主题</button>
-      </div>
+      <nav class="top-nav" aria-label="主导航">
+        <a href="index.html" data-mobile="show">主页</a>
+        <a href="reading.html" data-mobile="show">阅读</a>
+        <a href="writing.html" class="active" data-mobile="show">写作</a>
+        <a href="sleep.html" data-mobile="show">睡眠</a>
+        <a href="exercise.html" data-mobile="hide">运动</a>
+        <a href="todo.html" data-mobile="hide">待办</a>
+        <a href="goals.html" data-mobile="hide">目标</a>
+        <button id="navMoreBtn" class="nav-more sparkle" type="button">更多 ▾</button>
+        <div id="navMoreMenu" class="nav-more-menu" role="menu" aria-hidden="true"></div>
+
+        <button id="themeBtn" class="btn btn-soft sparkle theme-btn" type="button">🎨 主题</button>
+      </nav>
     </header>
 
-    <nav class="top-nav">
-      <a class="nav-item" href="index.html">🏡 首页</a>
-      <a class="nav-item" href="reading.html">📚 阅读</a>
-      <a class="nav-item active" href="writing.html">✍️ 写作</a>
-      <a class="nav-item" href="todo.html">✅ 待办</a>
-      <a class="nav-item" href="focus.html">🎯 目标</a>
-    </nav>
+    <main class="layout">
+      <section class="card">
+        <div class="card-header">
+          <h2>今日一句 · 伍尔夫</h2>
+          <span class="pill" id="weatherPill">天气：加载中</span>
+        </div>
+        <blockquote class="quote">
+          <span id="woolfQuote">"I am rooted, but I flow."</span>
+          <cite id="woolfQuoteSource">— The Waves</cite>
+        </blockquote>
+      </section>
 
-    <main class="main-content">
       <section class="card">
         <div class="card-header">
           <h2>今日写作</h2>
+          <span class="hint">记录今日的火花</span>
         </div>
-        <div class="row" style="margin-bottom: 20px; gap: 12px;">
-          <input class="input" id="wWords" min="0" placeholder="今日字数..." type="number" style="flex:2"/>
-          <select class="input" id="wMood" style="flex:1">
-            <option value="happy">顺利</option>
-            <option value="normal">平淡</option>
-            <option value="blocked">卡顿</option>
+        
+        <div class="writing-row">
+          <input id="wWords" class="input" type="number" placeholder="今日字数..." />
+          <select id="wMood" class="input">
+            <option value="">心情...</option>
+            <option value="spark">火花</option>
+            <option value="steady">稳定</option>
             <option value="tired">疲惫</option>
+            <option value="blocked">卡住</option>
           </select>
-          <button class="btn btn-primary" id="wSave">保存</button>
+          <button id="wSave" class="btn btn-primary sparkle">放进花园</button>
         </div>
-        
-        <div class="divider"></div>
-        
+
+        <div class="divider" style="margin: 24px 0;"></div>
+
         <div class="summary-grid">
-          <div class="summary-item">
-            <div class="mini-title">本月累计 (字)</div>
-            <div class="big-num" id="wMonthTotal">0</div>
+          <div class="mini">
+            <div class="mini-title">本月累计</div>
+            <div class="mini-value" style="font-size: 1.8rem; color: var(--accent);" id="wMonthTotal">0</div>
           </div>
-          <div class="summary-item">
-            <div class="mini-title">鼓励语</div>
-            <div id="wEncourage" style="font-style: italic; color: var(--muted); margin-top:8px; font-size: 0.95rem;">——</div>
+          <div class="mini">
+            <div class="mini-title">阿柴语录</div>
+            <div class="mini-value" id="wEncourage" style="font-style: italic; font-size: 0.95rem;">——</div>
           </div>
         </div>
       </section>
@@ -133,30 +129,44 @@
       <section class="card">
         <div class="card-header">
           <h2>写作热力</h2>
-          <span class="hint">最近 14 天记录</span>
+          <span class="hint">最近 14 天写作记录</span>
         </div>
-        <div class="mini-heat" id="wHeat" style="margin-top: 15px;"></div>
+        <div id="wHeat" class="mini-heat" style="margin-top: 15px;"></div>
       </section>
     </main>
 
-    <button id="chat-button" class="chat-fab sparkle">☁️</button>
-    <div id="chat-window" class="chat-window" aria-hidden="true">
-      <div class="chat-header">
-        <div class="chat-title">阿柴 · 小窗</div>
-        <button id="chat-close" class="btn btn-ghost">关闭</button>
-      </div>
-      <div class="chat-body" id="chatBody"></div>
-      <div class="chat-input">
-        <input id="chatInput" class="input" placeholder="对阿柴说点什么…" />
-        <button id="chatSend" class="btn btn-primary">发送</button>
-      </div>
-    </div>
-
     <footer class="site-footer">
-      <div class="footer-right">
-        <span>Virginia's Garden © 2024</span>
-      </div>
+      <a class="footer-back" href="index.html">← 回到花园</a>
+      <div class="footer-note">小娜花园 · v11 · 写作追踪</div>
     </footer>
   </div>
+
+  <div id="themeModal" class="modal" aria-hidden="true" style="display: none;">
+    <div class="modal-backdrop" id="themeBackdrop"></div>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div class="modal-title">主题选择</div>
+        <div class="modal-actions">
+          <button id="toggleNight" class="btn btn-ghost sparkle">🌙/☀️</button>
+          <button id="closeTheme" class="btn btn-ghost sparkle">关闭</button>
+        </div>
+      </div>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+  </div>
+
+  <button id="chat-button" class="chat-fab sparkle">☁️</button>
+  <div id="chat-window" class="chat-window" aria-hidden="true">
+    <div class="chat-header">
+      <div class="chat-title">阿柴 · 小窗</div>
+      <button id="chat-close" class="btn btn-ghost">关闭</button>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-input">
+      <input id="chatInput" class="input" placeholder="对阿柴说点什么…" />
+      <button id="chatSend" class="btn btn-primary">发送</button>
+    </div>
+  </div>
+
 </body>
 </html>
