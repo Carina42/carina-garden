@@ -226,6 +226,9 @@
   }
 
   function init(){
+    // Woolf quote
+    try{ window.WoolfQuotes && window.WoolfQuotes.render && window.WoolfQuotes.render('woolfQuote','woolfQuoteSource'); }catch(_){ }
+
     ensureModal();
 
     $("tagFilter")?.addEventListener("input", ()=> renderBooks());

@@ -1,6 +1,5 @@
-
 (function(){
-  // A 12-month mosaic: dominant mood & intensity by count
+  // 12-month mood mosaic heatmap (responsive) on canvas
   const moodBase = {
     calm:   "#7aa184",
     warm:   "#c7ab6b",
@@ -14,7 +13,7 @@
 
   function hexToRgb(hex){
     const m = String(hex).replace("#","").trim();
-    const v = parseInt(m,16);
+    const v = parseInt(m.length===3 ? m.split("").map(c=>c+c).join("") : m, 16);
     return {r:(v>>16)&255, g:(v>>8)&255, b:v&255};
   }
   function mix(a,b,t){
@@ -29,105 +28,118 @@
     const byM = Array.from({length:12}, ()=>({count:0, moodCount:{}}));
     books.forEach(b=>{
       if(!b.finishedDate) return;
-      const d = new Date(b.finishedDate+"T00:00:00");
+      const d = new Date(b.finishedDate + "T00:00:00");
       if(Number.isNaN(d.getTime())) return;
       const m = d.getMonth();
-      byM[m].count++;
       const mood = (b.mood||"none");
-      byM[m].moodCount[mood] = (byM[m].moodCount[mood]||0)+1;
+      const cell = byM[m];
+      cell.count += 1;
+      cell.moodCount[mood] = (cell.moodCount[mood]||0) + 1;
     });
-    return byM;
+    return byM.map(cell=>{
+      let best = "none", bestC = 0;
+      Object.entries(cell.moodCount).forEach(([k,v])=>{
+        if(v>bestC){ bestC=v; best=k; }
+      });
+      return { mood: best, count: cell.count };
+    });
   }
 
-  function dominant(moodCount){
-    let best = "none", bestV = 0;
-    for(const k in moodCount){
-      const v = moodCount[k];
-      if(v>bestV){ bestV=v; best=k; }
-    }
-    return best || "none";
+  function roundRect(ctx, x, y, w, h, r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function setupCanvas(canvas, cssH){
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = Math.max(280, Math.floor((canvas.parentElement ? canvas.parentElement.clientWidth : canvas.clientWidth) || 700));
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx, w: cssW, h: cssH};
   }
 
   function draw(books, canvas){
     if(!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const w = canvas.width, h = canvas.height;
+    const isMobile = window.matchMedia("(max-width: 560px)").matches;
+    const {ctx, w, h} = setupCanvas(canvas, isMobile ? 240 : 220);
     ctx.clearRect(0,0,w,h);
 
     const data = summarize(books);
     const maxC = Math.max(1, ...data.map(x=>x.count));
-    const pad = 28;
-    const cellW = (w - pad*2)/12;
-    const cellH = 120;
+    const pad = isMobile ? 12 : 18;
+
+    // background
+    const bg = ctx.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0, "rgba(255,255,255,0.65)");
+    bg.addColorStop(1, "rgba(255,255,255,0.35)");
+    ctx.fillStyle = bg;
+    roundRect(ctx, 8, 8, w-16, h-16, 16);
+    ctx.fill();
 
     // title
     ctx.fillStyle = "rgba(0,0,0,0.65)";
     ctx.font = "13px ui-sans-serif, system-ui, -apple-system";
-    ctx.fillText("阅读情绪热力图（按月：主情绪 × 阅读量）", pad, 18);
+    ctx.fillText("四季心情地图 · 按月份汇总", pad, 18);
+
+    const cellW = (w - pad*2) / 12;
+    const cellH = isMobile ? 120 : 110;
+    const top = 34;
 
     for(let i=0;i<12;i++){
-      const x = pad + i*cellW + 4;
-      const y = 40;
-      const m = data[i];
-      const dom = dominant(m.moodCount);
-      const base = moodBase[dom] || moodBase.none;
+      const {mood, count} = data[i];
+      const strength = Math.min(1, count / maxC);
+      const base = moodBase[mood] || moodBase.none;
+      const fill = mix("#f7f4ef", base, 0.35 + 0.55*strength);
 
-      // intensity: mix with white by inverse count
-      const t = 1 - (m.count/maxC); // 0 = strong, 1 = pale
-      const fill = mix(base, "#ffffff", Math.min(0.65, 0.18 + t*0.7));
+      const x = pad + i*cellW;
+      const y = top;
+
       ctx.fillStyle = fill;
-
-      roundRect(ctx, x, y, cellW-8, cellH, 12);
+      roundRect(ctx, x+4, y, cellW-8, cellH, 12);
       ctx.fill();
 
       // month label
-      ctx.fillStyle = "rgba(0,0,0,0.65)";
-      ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
-      ctx.fillText(months[i]+"月", x+8, y+18);
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.font = isMobile ? "11px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+                          : "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+      ctx.fillText(months[i], x + 8, y + cellH + 18);
 
-      // count
-      ctx.font = "20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
-      ctx.fillText(String(m.count), x+8, y+48);
-
-      // mood
-      ctx.font = "12px ui-sans-serif, system-ui, -apple-system";
-      const moodLabel = moodToZh(dom);
-      ctx.fillText(moodLabel, x+8, y+70);
-
-      // small dots for distribution (up to 8)
-      const dots = Object.entries(m.moodCount).sort((a,b)=>b[1]-a[1]).slice(0,3);
-      let dy = y+92;
-      dots.forEach(([k,v], idx)=>{
-        const c = moodBase[k] || moodBase.none;
-        ctx.fillStyle = c;
-        ctx.globalAlpha = 0.9;
+      // tiny dot for intensity
+      if(count>0){
+        ctx.fillStyle = "rgba(0,0,0,0.20)";
         ctx.beginPath();
-        ctx.arc(x+12, dy+idx*16, 4, 0, Math.PI*2);
+        ctx.arc(x + cellW/2, y + cellH/2, 10 + 10*strength, 0, Math.PI*2);
         ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.font = "11px ui-sans-serif, system-ui, -apple-system";
-        ctx.fillText(`${moodToZh(k)} ×${v}`, x+22, dy+idx*16+4);
-      });
+      }
     }
-  }
 
-  function moodToZh(m){
-    const map = {
-      calm:"清澈", warm:"温暖", excited:"雀跃", sad:"怅然", angry:"愤怒", awe:"震颤", none:"未记录"
-    };
-    return map[m] || "未记录";
-  }
-
-  function roundRect(ctx,x,y,w,h,r){
-    const rr = Math.min(r, w/2, h/2);
-    ctx.beginPath();
-    ctx.moveTo(x+rr,y);
-    ctx.arcTo(x+w,y,x+w,y+h,rr);
-    ctx.arcTo(x+w,y+h,x,y+h,rr);
-    ctx.arcTo(x,y+h,x,y,rr);
-    ctx.arcTo(x,y,x+w,y,rr);
-    ctx.closePath();
+    // legend (mobile: smaller)
+    const legendY = top + cellH + (isMobile ? 26 : 30);
+    const legend = [
+      ["calm","平静"], ["warm","温暖"], ["excited","雀跃"],
+      ["sad","微伤"], ["angry","烦躁"], ["awe","惊奇"]
+    ];
+    let lx = pad;
+    legend.forEach(([k,label])=>{
+      const c = moodBase[k];
+      ctx.fillStyle = c + "cc";
+      roundRect(ctx, lx, legendY, 18, 10, 5);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,0.60)";
+      ctx.font = isMobile ? "11px ui-sans-serif, system-ui, -apple-system" : "12px ui-sans-serif, system-ui, -apple-system";
+      ctx.fillText(label, lx + 24, legendY + 10);
+      lx += isMobile ? 78 : 92;
+    });
   }
 
   window.drawEmotionHeatmap = draw;

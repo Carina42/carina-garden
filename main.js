@@ -2,24 +2,16 @@
 (function(){
   const $ = (id)=>document.getElementById(id);
 
-  // ---------- Quote: stable per day ----------
-  const WOOLF_QUOTES = [
-    "“I am rooted, but I flow.” — Virginia Woolf",
-    "“Arrange whatever pieces come your way.” — Virginia Woolf",
-    "“Lock up your libraries if you like; but there is no gate, no lock, no bolt that you can set upon the freedom of my mind.” — Virginia Woolf",
-    "“If you do not tell the truth about yourself, you cannot tell it about other people.” — Virginia Woolf",
-    "“One cannot think well, love well, sleep well, if one has not dined well.” — Virginia Woolf",
-    "“Books are the mirrors of the soul.” — Virginia Woolf (attrib.)"
-  ];
-  function dailyIndex(n){
-    const d = new Date();
-    const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-    let h = 0;
-    for(let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) >>> 0;
-    return h % n;
+  // ---------- Woolf Quote (random each refresh) ----------
+  function renderQuote(){
+    try{
+      if(window.WoolfQuotes && typeof window.WoolfQuotes.render === "function"){
+        window.WoolfQuotes.render("woolfQuote","woolfQuoteSource");
+      }
+    }catch(_){}
   }
 
-  // ---------- Countdown / progress ----------
+// ---------- Countdown / progress ----------
   function pct(a,b){ return Math.max(0, Math.min(100, (a/b)*100)); }
   function setProgress(barId, textId, p, label){
     const bar = $(barId);
@@ -368,8 +360,7 @@ function setWeatherUI(placeName, tempC, code, wind){
 
   // ---------- init ----------
   document.addEventListener("DOMContentLoaded", ()=>{
-    const q = $("woolfQuote");
-    if(q) q.textContent = WOOLF_QUOTES[dailyIndex(WOOLF_QUOTES.length)];
+    renderQuote();
 
     initWeather();
     updateTimeProgress();

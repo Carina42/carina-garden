@@ -1,19 +1,19 @@
 (function(){
-  const KEY = "chai_theme_v7";
+  const KEY = "xng_theme_v8";
 
   const THEMES = [
-    { cls:"theme-leaf",  name:"叶影",  chips:["#2f6b53","#7aa184","#f7f4ef"] },
-    { cls:"theme-moss",  name:"苔雾",  chips:["#3d6c5a","#8fb59b","#f2efe8"] },
-    { cls:"theme-sun",   name:"日光",  chips:["#9b6b2f","#d8c7a8","#fbf6ee"] },
-    { cls:"theme-night", name:"夜墨",  chips:["#2b3a4a","#7b9db0","#f2f3f5"] },
-    { cls:"theme-sage",  name:"鼠尾草",chips:["#58756b","#a3b7a9","#f3f2ee"] },
-    { cls:"theme-clay",  name:"陶土",  chips:["#7b4d3a","#cfae9f","#f6f0eb"] },
-    { cls:"theme-rose",  name:"蔷薇",  chips:["#7a3d4f","#d7a7b6","#f7f1f3"] },
-    { cls:"theme-sky",   name:"晴蓝",  chips:["#2f5e7a","#a7c6d7","#f1f6f8"] }
+    { cls:"theme-fern",  name:"蕨影",  note:"深绿 · 安心",  chips:["#2f6b53","#7aa184","#f7f4ef"] },
+    { cls:"theme-moss",  name:"苔雾",  note:"灰绿 · 轻柔",  chips:["#446a4b","#9ab08a","#f5f6f0"] },
+    { cls:"theme-oat",   name:"燕麦",  note:"米白 · 松弛",  chips:["#7b6a4f","#d8c7a8","#fbf6ee"] },
+    { cls:"theme-mist",  name:"雾蓝",  note:"灰蓝 · 清醒",  chips:["#2f5e7a","#a7c6d7","#f1f6f8"] },
+    { cls:"theme-rose",  name:"蔷薇",  note:"豆沙 · 温暖",  chips:["#7a3d4f","#d7a7b6","#f7f1f3"] },
+    { cls:"theme-clay",  name:"陶土",  note:"赤陶 · 可靠",  chips:["#7b4d3a","#cfae9f","#f6f0eb"] },
+    { cls:"theme-lilac", name:"灰紫",  note:"薰衣草 · 轻梦", chips:["#5b5875","#b2b0c6","#f3f2f6"] },
+    { cls:"theme-night", name:"夜松",  note:"深夜 · 护眼",  chips:["#2b3a4a","#7b9db0","#1b1f28"] }
   ];
 
   function applyTheme(cls){
-    document.body.classList.remove(...THEMES.map(t=>t.cls));
+    document.body.classList.remove(...THEMES.map(t=>t.cls), "theme-leaf","theme-sun","theme-sage","theme-sky","theme-clay","theme-rose","theme-moss","theme-night");
     document.body.classList.add(cls);
     try{ localStorage.setItem(KEY, cls); }catch(_){}
     // update active badge
@@ -24,7 +24,7 @@
 
   function restoreTheme(){
     try{
-      const saved = localStorage.getItem(KEY);
+      const saved = localStorage.getItem(KEY) || localStorage.getItem("chai_theme_v7");
       if(saved && THEMES.some(t=>t.cls===saved)) applyTheme(saved);
       else applyTheme(THEMES[0].cls);
     }catch(_){
@@ -79,10 +79,40 @@
     });
   }
 
+
+  function ensureMoreMenu(){
+    const btn = document.getElementById("moreBtn");
+    const menu = document.getElementById("moreMenu");
+    if(!btn || !menu) return;
+
+    function close(){
+      btn.setAttribute("aria-expanded","false");
+      menu.classList.remove("show");
+    }
+    function open(){
+      btn.setAttribute("aria-expanded","true");
+      menu.classList.add("show");
+    }
+
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const expanded = btn.getAttribute("aria-expanded")==="true";
+      expanded ? close() : open();
+    });
+    document.addEventListener("click", (e)=>{
+      if(menu.classList.contains("show")) close();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key==="Escape") close();
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", ()=>{
     restoreTheme();
     highlightNav();
     ensurePickerUI();
+    ensureMoreMenu();
   });
 
   window.__chaiTheme = { applyTheme };

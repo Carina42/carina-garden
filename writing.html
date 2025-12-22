@@ -1,109 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>柴窝之家 · 写作追踪</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="chatbot.css" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#2f6b53" />
-  <link rel="icon" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
-  <script defer src="themePicker.js"></script>
-  <script defer src="pwa.js"></script>
-  <script defer src="writing.js"></script>
-  <script defer src="chatbot.js"></script>
-</head>
-<body class="theme-leaf">
-  <div class="border-frame" aria-hidden="true">
-    <div class="border-pattern"></div>
-    <div class="weather-ornaments" id="weatherOrnaments" aria-hidden="true"></div>
-  </div>
-  <div class="page">
-    <nav class="top-nav">
-  <a href="index.html" class="nav-item" data-nav="home">🏡 首页</a>
-  <a href="reading.html" class="nav-item" data-nav="reading">📚 阅读</a>
-  <a href="writing.html" class="nav-item" data-nav="writing">✍️ 写作</a>
-  <a href="sleep.html" class="nav-item" data-nav="sleep">🌙 睡眠</a>
-  <a href="exercise.html" class="nav-item" data-nav="exercise">🏃 运动</a>
-  <a href="todo.html" class="nav-item" data-nav="todo">📋 待办</a>
-  <a href="goals.html" class="nav-item" data-nav="goals">🎯 目标</a>
-  <div class="nav-spacer"></div>
-  <button id="themeToggle" class="chip-btn" title="切换主题">🌿 主题</button>
-</nav>
-    <header class="hero">
-      <div class="hero-left">
-        <h1 class="title">写作追踪</h1>
-        <p class="subtitle">记录目标、字数与四季节奏，让写作的火慢慢旺起来。</p>
-      </div>
-      <div class="hero-right">
-        <div class="card compact">
-          <div class="card-title">小提示</div>
-          <div class="hint">这些页面都是真正可用的小工具（本地保存），不是空壳占位。</div>
-        </div>
-      </div>
-    </header>
-    <main class="grid">
-      
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>小娜花园 · 写作</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="chatbot.css" rel="stylesheet"/>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#2f6b53" name="theme-color"/>
+<link href="icons/icon-192.png" rel="icon"/>
+<link href="icons/icon-192.png" rel="apple-touch-icon"/>
+<script defer="" src="themePicker.js"></script>
+<script defer="" src="pwa.js"></script>
+<script defer="" src="writing.js"></script>
+<script defer="" src="chatbot.js"></script>
+<script defer="" src="woolfQuotes.js"></script>
+<script defer="" src="quoteInit.js"></script><script defer="" src="sync.js"></script></head>
+<body class="theme-fern">
+<div aria-hidden="true" class="border-frame">
+<div class="border-pattern"></div>
+<div aria-hidden="true" class="weather-ornaments" id="weatherOrnaments"></div>
+</div>
+<div class="page">
+<nav class="top-nav"><a class="nav-item" data-nav="home" href="index.html">🏡 首页</a><a class="nav-item" data-nav="reading" href="reading.html">📚 阅读</a><a class="nav-item" data-nav="writing" href="writing.html">✍️ 写作</a><a class="nav-item" data-nav="sleep" href="sleep.html">🌙 睡眠</a><a class="nav-item nav-extra" data-nav="exercise" href="exercise.html">🏃 运动</a><a class="nav-item nav-extra" data-nav="todo" href="todo.html">📋 待办</a><a class="nav-item nav-extra" data-nav="goals" href="goals.html">🎯 目标</a><div class="nav-more"><button aria-expanded="false" aria-haspopup="true" class="nav-item nav-more-btn" id="moreBtn">⋯ 更多</button><div class="nav-more-menu" id="moreMenu" role="menu"><a class="nav-item" data-nav="exercise" href="exercise.html" role="menuitem">🏃 运动</a><a class="nav-item" data-nav="todo" href="todo.html" role="menuitem">📋 待办</a><a class="nav-item" data-nav="goals" href="goals.html" role="menuitem">🎯 目标</a></div></div><div class="nav-spacer"></div><button class="chip-btn" id="themeToggle" title="选择主题">🌿 主题</button></nav>
+<header class="hero">
+<div class="hero-left">
+<h1 class="title">写作追踪</h1>
+<p class="subtitle">记录目标、字数与四季节奏，让写作的火慢慢旺起来。</p>
+</div>
+<div class="hero-right">
+<div class="card compact"><div class="card-title">📖 伍尔夫随机一句</div><blockquote class="quote" id="woolfQuote"></blockquote><div class="quote-src" id="woolfQuoteSource"></div></div>
+</div>
+</header>
+<main class="grid">
 <section class="card span-2">
-  <div class="card-title">✍️ 今日写作</div>
-  <div class="row">
-    <input class="input" id="wWords" type="number" min="0" placeholder="今日写作字数（例如：800）" />
-    <select class="input" id="wMood">
-      <option value="">写作心情</option>
-      <option value="spark">火花</option>
-      <option value="steady">稳定</option>
-      <option value="tired">疲惫</option>
-      <option value="blocked">卡住</option>
-    </select>
-    <button class="btn" id="wSave">保存</button>
-  </div>
-  <div class="two-col mt">
-    <div class="mini">
-      <div class="mini-title">本月累计</div>
-      <div class="big-num" id="wMonthTotal">0</div>
-    </div>
-    <div class="mini">
-      <div class="mini-title">鼓励语</div>
-      <div class="encourage" id="wEncourage">——</div>
-    </div>
-  </div>
-  <div class="divider"></div>
-  <div class="mini-title">最近 14 天写作热力</div>
-  <div id="wHeat" class="mini-heat"></div>
+<div class="card-title">✍️ 今日写作</div>
+<div class="row">
+<input class="input" id="wWords" min="0" placeholder="今日写作字数（例如：800）" type="number"/>
+<select class="input" id="wMood">
+<option value="">写作心情</option>
+<option value="spark">火花</option>
+<option value="steady">稳定</option>
+<option value="tired">疲惫</option>
+<option value="blocked">卡住</option>
+</select>
+<button class="btn" id="wSave">保存</button>
+</div>
+<div class="two-col mt">
+<div class="mini">
+<div class="mini-title">本月累计</div>
+<div class="big-num" id="wMonthTotal">0</div>
+</div>
+<div class="mini">
+<div class="mini-title">鼓励语</div>
+<div class="encourage" id="wEncourage">——</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="mini-title">最近 14 天写作热力</div>
+<div class="mini-heat" id="wHeat"></div>
 </section>
-
-    </main>
-    <footer class="footer"><span class="muted">柴窝之家 · 写作追踪页</span></footer>
-  </div>
-
-  <button id="toggle-chatbot" class="floating-chat" aria-label="打开柴柴助理">☁️</button>
-  <div id="chatbot-box" class="chatbox" role="dialog" aria-label="柴柴助理聊天窗">
-    <div id="chatbot-header" class="chatbox-header">
-      <span>柴柴助理</span>
-      <button id="close-chatbot" class="chatbox-close" aria-label="关闭">×</button>
-    </div>
-    <div id="chat-area" class="chatbox-area"></div>
-    <div id="user-input-container" class="chatbox-input">
-      <input id="user-input" class="input" placeholder="我在呢…" />
-      <button id="send-btn" class="btn">发送</button>
-    </div>
-    <div class="chatbox-footnote"><span class="muted">需要 /api/chat + OPENAI_API_KEY。</span></div>
-  </div>
-
-  <!-- Theme Picker Modal -->
-  <div id="themePicker" class="theme-picker" aria-hidden="true">
-    <div class="theme-picker-panel" role="dialog" aria-label="主题选择">
-      <div class="theme-picker-head">
-        <div class="theme-picker-title">选择主题 · <span id="themeCurrent">叶影</span></div>
-        <button id="themeClose" class="icon-btn" aria-label="关闭">✕</button>
-      </div>
-      <div id="themeGrid" class="theme-grid"></div>
-      <div class="theme-picker-tip">提示：主题会记住，下次打开还是它。</div>
-    </div>
-  </div>
-
+</main>
+<footer class="footer"><span class="muted">小娜花园 · 写作追踪页</span></footer>
+</div>
+<button aria-label="打开柴柴助理" class="floating-chat" id="toggle-chatbot">☁️</button>
+<div aria-label="柴柴助理聊天窗" class="chatbox" id="chatbot-box" role="dialog">
+<div class="chatbox-header" id="chatbot-header">
+<span>柴柴助理</span>
+<button aria-label="关闭" class="chatbox-close" id="close-chatbot">×</button>
+</div>
+<div class="chatbox-area" id="chat-area"></div>
+<div class="chatbox-input" id="user-input-container">
+<input class="input" id="user-input" placeholder="我在呢…"/>
+<button class="btn" id="send-btn">发送</button>
+</div>
+<div class="chatbox-footnote"><span class="muted">需要 /api/chat + OPENAI_API_KEY。</span></div>
+</div>
+<!-- Theme Picker Modal -->
+<div aria-hidden="true" class="theme-picker" id="themePicker">
+<div aria-label="主题选择" class="theme-picker-panel" role="dialog">
+<div class="theme-picker-head">
+<div class="theme-picker-title">选择主题 · <span id="themeCurrent">叶影</span></div>
+<button aria-label="关闭" class="icon-btn" id="themeClose">✕</button>
+</div>
+<div class="theme-grid" id="themeGrid"></div>
+<div class="theme-picker-tip">提示：主题会记住，下次打开还是它。</div>
+</div>
+</div>
 </body>
 </html>
