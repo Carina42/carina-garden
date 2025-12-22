@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>小娜花园 · 阅读</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="chatbot.css" rel="stylesheet"/>
+<link href="manifest.json" rel="manifest"/>
+<meta content="#2f6b53" name="theme-color"/>
+<link href="icons/icon-192.png" rel="icon"/>
+<link href="icons/icon-192.png" rel="apple-touch-icon"/>
+<script defer="" src="themePicker.js"></script>
+<script defer="" src="pwa.js"></script>
+<script defer="" src="monthlyChart.js"></script>
+<script defer="" src="emotionHeatmap.js"></script>
+<script defer="" src="reading.js"></script>
+<script defer="" src="chatbot.js"></script>
+<script defer="" src="woolfQuotes.js"></script>
+<script defer="" src="quoteInit.js"></script><script defer="" src="sync.js"></script></head>
+<body class="theme-fern">
+<div aria-hidden="true" class="border-frame">
+<div class="border-pattern"></div>
+<div aria-hidden="true" class="weather-ornaments" id="weatherOrnaments"></div>
+</div>
+<div class="page">
+<nav class="top-nav"><a class="nav-item" data-nav="home" href="index.html">🏡 首页</a><a class="nav-item" data-nav="reading" href="reading.html">📚 阅读</a><a class="nav-item" data-nav="writing" href="writing.html">✍️ 写作</a><a class="nav-item" data-nav="sleep" href="sleep.html">🌙 睡眠</a><a class="nav-item nav-extra" data-nav="exercise" href="exercise.html">🏃 运动</a><a class="nav-item nav-extra" data-nav="todo" href="todo.html">📋 待办</a><a class="nav-item nav-extra" data-nav="goals" href="goals.html">🎯 目标</a><div class="nav-more"><button aria-expanded="false" aria-haspopup="true" class="nav-item nav-more-btn" id="moreBtn">⋯ 更多</button><div class="nav-more-menu" id="moreMenu" role="menu"><a class="nav-item" data-nav="exercise" href="exercise.html" role="menuitem">🏃 运动</a><a class="nav-item" data-nav="todo" href="todo.html" role="menuitem">📋 待办</a><a class="nav-item" data-nav="goals" href="goals.html" role="menuitem">🎯 目标</a></div></div><div class="nav-spacer"></div><button class="chip-btn" id="themeToggle" title="选择主题">🌿 主题</button></nav>
+<header class="hero">
+<div class="hero-left">
+<h1 class="title">📚 赛博图书馆</h1>
+<p class="subtitle">每读一本，就在书架上开一朵花。封面会上架，笔记会长出藤蔓。</p>
+<div class="hero-chips">
+<span class="chip">今年已读 <b id="bookCount">0</b> 本</span>
+<button class="chip-btn" id="bookMinus" title="移除最后一本">➖</button>
+<button class="chip-btn" id="bookPlus" title="添加一本并记录">➕</button>
+</div>
+</div>
+<div class="hero-right">
+<div class="card compact">
+<div class="card-title">🔎 标签筛选</div>
+<input class="input" id="tagFilter" placeholder="例如：小说 / 论文 / 植物 / 女性主义…"/>
+<div class="hint">输入关键词即可过滤下方书单与书架。</div>
+</div>
+<div class="card compact"><div class="card-title">📖 伍尔夫随机一句</div><blockquote class="quote" id="woolfQuote"></blockquote><div class="quote-src" id="woolfQuoteSource"></div></div></div>
+</header>
+<main class="grid">
+<!-- 书架 -->
+<section class="card">
+<div class="card-title">🪴 书架</div>
+<div class="bookshelf" id="bookshelf"></div>
+<div class="hint">每层最多 10 本，自动加层。点击书脊可展开详情。</div>
+</section>
+<!-- 添加书籍 -->
+<section class="card">
+<div class="card-title">➕ 添加/编辑书籍</div>
+<form class="form" id="bookForm">
+<div class="row">
+<input class="input" id="title" placeholder="书名（必填）" required=""/>
+<input class="input" id="author" placeholder="作者（可选）"/>
+</div>
+<div class="row">
+<input class="input" id="tags" placeholder="标签（用逗号分隔：小说,植物,女性主义…）"/>
+<input class="input" id="finishedDate" title="读完日期（用于趋势图）" type="date"/>
+</div>
+<div class="row">
+<select class="input" id="mood">
+<option value="">读后情绪（可选）</option>
+<option value="calm">清澈</option>
+<option value="warm">温暖</option>
+<option value="excited">雀跃</option>
+<option value="sad">怅然</option>
+<option value="angry">愤怒</option>
+<option value="awe">震颤</option>
+</select>
+<input class="input" id="quote" placeholder="引用佳句（可选）"/>
+</div>
+<textarea class="input" id="notes" placeholder="读后感 / 关联论文线索 / 是否想重读 / 关联书目…"></textarea>
+<div class="row">
+<input accept="image/*" class="input" id="cover" type="file"/>
+<button class="btn" type="submit">上架这本书</button>
+</div>
+<div class="hint">封面会渲染为书脊贴图；不上传也会生成植物系书脊。</div>
+</form>
+</section>
+<!-- 图表区 -->
+<section class="card">
+<div class="card-title">📈 月度阅读趋势</div>
+<canvas class="canvas" height="240" id="readingTrendChart" width="700"></canvas>
+<div class="hint">按“读完日期”统计；无日期的书不会计入趋势。</div>
+</section>
+<section class="card">
+<div class="card-title">🌈 阅读情绪热力图</div>
+<canvas class="canvas" height="240" id="emotionHeatmap" width="700"></canvas>
+<div class="hint">按月份汇总“读后情绪”色彩，形成四季心情地图。</div>
+</section>
+<!-- 书单卡片 -->
+<section class="card span-2">
+<div class="card-title">📘 书单与笔记</div>
+<div class="cards" id="cards"></div>
+</section>
+</main>
+<div aria-hidden="true" class="modal" id="bookModal">
+<div aria-label="书籍详情" class="modal-card" role="dialog">
+<button aria-label="关闭" class="modal-close" id="modalClose">×</button>
+<div class="modal-head">
+<div class="modal-cover" id="modalCover"></div>
+<div class="modal-meta">
+<div class="modal-title" id="modalTitle"></div>
+<div class="modal-sub" id="modalSub"></div>
+<div class="modal-tags" id="modalTags"></div>
+</div>
+</div>
+<div class="modal-body">
+<div class="modal-quote" id="modalQuote"></div>
+<div class="modal-notes" id="modalNotes"></div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="flower-zone" id="flowerZone"></div>
+<footer class="footer">
+<span class="muted">阅读页 · 书架 + 卡片 + 标签筛选 + 趋势图 + 情绪热力图（累积式更新）</span>
+</footer>
+</div>
+<!-- 柴柴助理 -->
+<button aria-label="打开柴柴助理" class="floating-chat" id="toggle-chatbot">☁️</button>
+<div aria-label="柴柴助理聊天窗" class="chatbox" id="chatbot-box" role="dialog">
+<div class="chatbox-header" id="chatbot-header">
+<span>柴柴助理 · 阅读陪伴</span>
+<button aria-label="关闭" class="chatbox-close" id="close-chatbot">×</button>
+</div>
+<div class="chatbox-area" id="chat-area"></div>
+<div class="chatbox-input" id="user-input-container">
+<input class="input" id="user-input" placeholder="想聊读书、论文、花园，都可以…"/>
+<button class="btn" id="send-btn">发送</button>
+</div>
+<div class="chatbox-footnote">
+<span class="muted">需要部署 /api/chat 并在 Vercel 配置 OPENAI_API_KEY。</span>
+</div>
+</div>
+<!-- Theme Picker Modal -->
+<div aria-hidden="true" class="theme-picker" id="themePicker">
+<div aria-label="主题选择" class="theme-picker-panel" role="dialog">
+<div class="theme-picker-head">
+<div class="theme-picker-title">选择主题 · <span id="themeCurrent">叶影</span></div>
+<button aria-label="关闭" class="icon-btn" id="themeClose">✕</button>
+</div>
+<div class="theme-grid" id="themeGrid"></div>
+<div class="theme-picker-tip">提示：主题会记住，下次打开还是它。</div>
+</div>
+</div>
+</body>
+</html>
