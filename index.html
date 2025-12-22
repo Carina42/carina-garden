@@ -1,81 +1,57 @@
+
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>柴窝之家 · 首页</title>
   <link rel="stylesheet" href="style.css" />
-  <script defer src="main.js"></script>
 </head>
-<body>
-  <div class="weather-border" id="weatherBorder"></div>
+<body class="morandi-theme">
+  <div class="page-container">
+    <header>
+      <h1>柴窝之家 🏡</h1>
+      <nav class="top-nav">
+        <a href="index.html" class="active">主页</a>
+        <a href="reading.html">读书</a>
+        <a href="#">写作</a>
+        <a href="#">睡眠</a>
+        <a href="#">运动</a>
+      </nav>
+    </header>
 
-  <!-- 顶部导航 -->
-  <nav class="navbar">
-    <a href="index.html" class="active">首页</a>
-    <a href="reading.html">读书</a>
-    <a href="writing.html">写作</a>
-    <a href="todos.html">待办</a>
-    <a href="sleep.html">睡眠</a>
-    <a href="sport.html">运动</a>
-  </nav>
+    <main>
+      <section class="summary">
+        <h2>📌 今日摘要</h2>
+        <p id="summaryText">你今天还没有打卡记录哦！快去完成番茄钟或阅读一本书吧～</p>
+      </section>
 
-  <main class="content">
+      <section class="mood-todo">
+        <h2>🪷 心情与待办</h2>
+        <input type="text" id="moodInput" placeholder="你今天的心情是..." />
+        <input type="text" id="todoInput" placeholder="最重要的待办事项是..." />
+        <button onclick="saveMoodTodo()">保存</button>
+        <div id="moodDisplay" class="mood-summary"></div>
+        <div id="todoDisplay" class="todo-summary"></div>
+      </section>
 
-    <!-- 今日摘要 -->
-    <section class="summary-card">
-      <h2>📋 今日摘要</h2>
-      <p>读书：已完成；写作：进行中；运动：尚未开始</p>
-    </section>
+      <section class="pomodoro-section">
+        <h2>🍅 番茄钟</h2>
+        <div class="pomodoro">
+          <div class="tomato" onclick="togglePomodoro()" ondblclick="resetPomodoro()">
+            <span id="timer">25:00</span>
+          </div>
+          <div id="completedTomatoes"></div>
+        </div>
+      </section>
+    </main>
 
-    <!-- 今日优先待办 -->
-    <section class="todo-highlight">
-      <h2>📌 今日优先事项</h2>
-      <p>完成小说更新 500 字</p>
-      <button onclick="location.href='todos.html'">查看全部待办</button>
-    </section>
-
-    <!-- 年度进度条 -->
-    <section class="year-progress">
-      <h2>📅 年度进度</h2>
-      <div class="progress-bar">
-        <div class="progress" id="yearProgressBar"></div>
-      </div>
-      <p id="yearProgressText">今年已过去 82%</p>
-    </section>
-
-    <!-- 实时天气模块 -->
-    <section class="weather-info">
-      <h2>🌤 当前天气</h2>
-      <p id="weatherText">正在获取天气信息...</p>
-    </section>
-
-    <!-- Woolf 随机语录 -->
-    <section class="quote-box">
-      <h2>📝 今日灵感</h2>
-      <blockquote id="woolfQuote">“Books are the mirrors of the soul.”</blockquote>
-    </section>
-
-    <!-- 番茄钟区域 -->
-    <section class="pomodoro-section">
-      <h2>🍅 番茄计时</h2>
-      <div id="tomato" class="tomato">25:00</div>
-      <div class="finished-row" id="finishedRow"></div>
-    </section>
-
-  </main>
-
-  <!-- 聊天窗口按钮 -->
-  <button class="chat-toggle" onclick="toggleChat()">☁️ 和阿柴聊聊</button>
-  <div class="chat-window" id="chatWindow">
-    <div class="chat-header">和阿柴聊聊</div>
-    <div class="chat-body" id="chatBody">
-      <p>你好呀，我在呢 🌸</p>
-    </div>
-    <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="写点什么…" />
-      <button onclick="sendChat()">发送</button>
+    <div id="chat-button" onclick="toggleChat()">☁️</div>
+    <div id="chat-window">
+      <iframe src="https://chat.openai.com/chat" width="100%" height="100%"></iframe>
     </div>
   </div>
+
+  <script src="main.js"></script>
 </body>
 </html>

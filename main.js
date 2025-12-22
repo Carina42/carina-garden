@@ -1,41 +1,65 @@
 
-// 主题切换
-document.getElementById("toggle-theme").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
+let timer;
+let timeLeft = 25 * 60;
+let isRunning = false;
+let completedCount = 0;
 
-// 倒计时显示
-function updateCountdown() {
-  const now = new Date();
-  const yearEnd = new Date(now.getFullYear(), 11, 31);
-  const daysLeft = Math.ceil((yearEnd - now) / (1000 * 60 * 60 * 24));
-  document.getElementById("year-end-countdown").innerText = `今年还剩下 ${daysLeft} 天`;
+function updateDisplay() {
+  const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+  const seconds = String(timeLeft % 60).padStart(2, '0');
+  document.getElementById("timer").textContent = `${minutes}:${seconds}`;
 }
-updateCountdown();
 
-// 自定义倒计时添加
-document.getElementById("custom-countdown-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.getElementById("event-name").value;
-  const date = new Date(document.getElementById("event-date").value);
-  const now = new Date();
-  const days = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
-  const li = document.createElement("li");
-  li.textContent = `${name}：还有 ${days} 天`;
-  document.getElementById("custom-countdown-list").appendChild(li);
-  this.reset();
-});
+function togglePomodoro() {
+  if (isRunning) {
+    clearInterval(timer);
+    isRunning = false;
+  } else {
+    isRunning = true;
+    timer = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        updateDisplay();
+      } else {
+        clearInterval(timer);
+        isRunning = false;
+        completedCount++;
+        document.getElementById("completedTomatoes").innerHTML += '<span class="tomato-icon">🍅</span>';
+        timeLeft = 25 * 60;
+        updateDisplay();
+      }
+    }, 1000);
+  }
+}
 
-// 随机语录
-const quotes = [
-  "“I am rooted, but I flow.” — Virginia Woolf",
-  "“Books are the mirrors of the soul.” — Virginia Woolf",
-  "“No need to hurry. No need to sparkle.”",
-  "“A woman must have money and a room of her own.”",
-  "“The eyes of others our prisons; their thoughts our cages.”"
-];
-document.getElementById("quote-text").innerText = quotes[Math.floor(Math.random() * quotes.length)];
+function resetPomodoro() {
+  clearInterval(timer);
+  timeLeft = 25 * 60;
+  updateDisplay();
+  isRunning = false;
+}
 
-// 天气模拟（未来可接入API）
-document.getElementById("weather-display").innerText = "☀️ 郑州 · 晴 15°C";
-// ⚠️ 你可使用 OpenWeatherMap API 获取实时天气并渲染不同背景
+function toggleChat() {
+  const chat = document.getElementById("chat-window");
+  chat.style.display = chat.style.display === "block" ? "none" : "block";
+}
+
+function saveMoodTodo() {
+  const mood = document.getElementById("moodInput").value;
+  const todo = document.getElementById("todoInput").value;
+  localStorage.setItem("todayMood", mood);
+  localStorage.setItem("todayTodo", todo);
+  updateMoodTodoDisplay();
+}
+
+function updateMoodTodoDisplay() {
+  const mood = localStorage.getItem("todayMood") || "（还没记录今日心情）";
+  const todo = localStorage.getItem("todayTodo") || "（还没设置今日最重要事项）";
+  document.getElementById("moodDisplay").textContent = `今日心情：${mood}`;
+  document.getElementById("todoDisplay").textContent = `待办优先事项：${todo}`;
+}
+
+window.onload = () => {
+  updateDisplay();
+  updateMoodTodoDisplay();
+};
