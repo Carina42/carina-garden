@@ -1,4 +1,4 @@
-// 小娜花园 · reading.js
+// 小娜花园 · reading.js (v10)
 const LS_KEY = "xn_garden_reading_books_v1";
 
 const els = {
@@ -13,36 +13,26 @@ const els = {
   cover: document.getElementById("book-cover"),
   note: document.getElementById("book-note"),
   flower: document.getElementById("flower-display"),
+  weatherPill: document.getElementById("weatherPill"),
+  navMoreBtn: document.getElementById("navMoreBtn"),
+  navMoreMenu: document.getElementById("navMoreMenu"),
 };
 
 function loadBooks(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){
-    return [];
-  }
+  try{ return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }catch(e){ return []; }
 }
-function saveBooks(books){
-  localStorage.setItem(LS_KEY, JSON.stringify(books));
-}
-function getShortTitle(title){
-  const t = (title || "未命名").trim();
-  if (!t) return "未命名";
-  // show last 6 chars
-  return t.length > 6 ? t.slice(0, 6) + "…" : t;
-}
+function saveBooks(books){ localStorage.setItem(LS_KEY, JSON.stringify(books)); }
 
 function spawnPetalsAt(x, y, n = 12){
-  for (let i = 0; i < n; i++) {
+  for (let i=0;i<n;i++){
     const p = document.createElement("span");
     p.className = "petal";
-    const dx = (Math.random() * 120 - 60);
-    const dy = (Math.random() * 120 - 60);
+    const dx = (Math.random()*120 - 60);
+    const dy = (Math.random()*120 - 60);
     p.style.left = x + "px";
     p.style.top = y + "px";
-    p.style.setProperty("--x0", "0px");
-    p.style.setProperty("--y0", "0px");
+    p.style.setProperty("--x0","0px");
+    p.style.setProperty("--y0","0px");
     p.style.setProperty("--x1", dx + "px");
     p.style.setProperty("--y1", dy + "px");
     p.style.background = `rgba(${Math.floor(120+Math.random()*60)}, ${Math.floor(140+Math.random()*60)}, ${Math.floor(130+Math.random()*60)}, .85)`;
@@ -50,21 +40,21 @@ function spawnPetalsAt(x, y, n = 12){
     setTimeout(() => p.remove(), 950);
   }
 }
-
+function burstAt(el, n=12){
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  spawnPetalsAt(r.left + r.width/2, r.top + r.height/2, n);
+}
 function flowerTick(){
   if (!els.flower) return;
   els.flower.style.opacity = "1";
   els.flower.style.transform = `translateX(${(Math.random()*12-6).toFixed(0)}px)`;
-  setTimeout(() => {
-    if (!els.flower) return;
-    els.flower.style.opacity = ".75";
-  }, 350);
+  setTimeout(() => { if (els.flower) els.flower.style.opacity = ".75"; }, 350);
 }
 
 function render(){
   const books = loadBooks();
-  if (els.count) els.count.textContent = books.length.toString();
-
+  if (els.count) els.count.textContent = String(books.length);
   renderShelf(books);
   renderTable(books);
 }
@@ -72,44 +62,28 @@ function render(){
 function renderShelf(books){
   if (!els.shelf) return;
   els.shelf.innerHTML = "";
-
   const perRow = 10;
   const rows = Math.ceil(books.length / perRow) || 1;
 
-  for (let r = 0; r < rows; r++){
+  for (let r=0;r<rows;r++){
     const row = document.createElement("div");
     row.className = "shelf-row";
-
-    for (let i = 0; i < perRow; i++){
+    for (let i=0;i<perRow;i++){
       const idx = r*perRow + i;
       if (idx >= books.length) break;
+      const b = books[idx];
 
-      const book = books[idx];
       const item = document.createElement("div");
       item.className = "book";
-      item.dataset.index = idx;
-
-      if (book.cover){
+      if (b.cover){
         item.classList.add("cover");
-        item.style.backgroundImage = `url(${book.cover})`;
+        item.style.backgroundImage = `url(${b.cover})`;
       } else {
-        item.innerHTML = `
-          <div class="spine">
-            <div class="title">${escapeHtml(getShortTitle(book.title))}</div>
-            <div class="mark">小娜花园</div>
-          </div>
-        `;
+        item.innerHTML = `<div class="spine"><div class="title">${escapeHtml(shortTitle(b.title))}</div><div class="mark">小娜花园</div></div>`;
       }
-
-      item.addEventListener("click", (e) => {
-        const rect = item.getBoundingClientRect();
-        spawnPetalsAt(rect.left + rect.width/2, rect.top + rect.height/2, 10);
-        flowerTick();
-      });
-
+      item.addEventListener("click", () => { burstAt(item, 10); flowerTick(); });
       row.appendChild(item);
     }
-
     els.shelf.appendChild(row);
   }
 }
@@ -117,78 +91,51 @@ function renderShelf(books){
 function renderTable(books){
   if (!els.tbody) return;
   els.tbody.innerHTML = "";
-
   books.forEach((b, idx) => {
     const tr = document.createElement("tr");
 
-    const tdTitle = document.createElement("td");
-    tdTitle.textContent = b.title || "未命名";
+    const td1 = document.createElement("td");
+    td1.textContent = b.title || "未命名";
 
-    const tdCover = document.createElement("td");
+    const td2 = document.createElement("td");
     if (b.cover){
       const img = document.createElement("img");
       img.className = "cover-thumb";
       img.src = b.cover;
       img.alt = b.title || "cover";
-      tdCover.appendChild(img);
+      td2.appendChild(img);
     } else {
-      tdCover.textContent = "—";
-      tdCover.style.color = "rgba(60,50,40,.55)";
+      td2.textContent = "—";
+      td2.style.color = "rgba(60,50,40,.55)";
     }
 
-    const tdNote = document.createElement("td");
-    tdNote.textContent = b.note || "";
+    const td3 = document.createElement("td");
+    td3.textContent = b.note || "";
 
-    const tdAct = document.createElement("td");
+    const td4 = document.createElement("td");
     const del = document.createElement("button");
     del.className = "btn btn-ghost sparkle";
     del.type = "button";
     del.textContent = "删除";
     del.addEventListener("click", (e) => {
       e.stopPropagation();
-      removeAt(idx);
-      const rect = del.getBoundingClientRect();
-      spawnPetalsAt(rect.left + rect.width/2, rect.top + rect.height/2, 10);
+      const books2 = loadBooks();
+      books2.splice(idx, 1);
+      saveBooks(books2);
+      render();
+      burstAt(del, 10);
     });
-    tdAct.appendChild(del);
+    td4.appendChild(del);
 
-    tr.appendChild(tdTitle);
-    tr.appendChild(tdCover);
-    tr.appendChild(tdNote);
-    tr.appendChild(tdAct);
-
+    tr.append(td1, td2, td3, td4);
     els.tbody.appendChild(tr);
   });
 }
 
-function addBlank(){
-  const books = loadBooks();
-  books.push({ title: "未命名", cover: "", note: "" });
-  saveBooks(books);
-  render();
-  flowerTick();
+function shortTitle(t){
+  const s = (t || "未命名").trim();
+  return s.length > 6 ? s.slice(0,6) + "…" : s;
 }
-function removeLast(){
-  const books = loadBooks();
-  books.pop();
-  saveBooks(books);
-  render();
-  flowerTick();
-}
-function removeAt(idx){
-  const books = loadBooks();
-  books.splice(idx, 1);
-  saveBooks(books);
-  render();
-  flowerTick();
-}
-function clearAll(){
-  if (!confirm("确定要清空阅读书架吗？（会删除本机保存的数据）")) return;
-  saveBooks([]);
-  render();
-  flowerTick();
-}
-
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, (c) => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -204,55 +151,107 @@ async function fileToDataUrl(file){
   });
 }
 
-function setup(){
-  if (els.add) els.add.addEventListener("click", (e) => {
-    addBlank();
-    spawnPetalsAt(e.clientX, e.clientY, 12);
-  });
-  if (els.remove) els.remove.addEventListener("click", (e) => {
-    removeLast();
-    spawnPetalsAt(e.clientX, e.clientY, 12);
-  });
-  if (els.clear) els.clear.addEventListener("click", (e) => {
-    clearAll();
-    spawnPetalsAt(e.clientX, e.clientY, 16);
-  });
+async function initWeather(){
+  const pill = els.weatherPill;
+  const setText = (t) => { if (pill) pill.textContent = t; };
 
-  if (els.form){
-    els.form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const title = (els.title?.value || "").trim() || "未命名";
-      const note = (els.note?.value || "").trim();
-      const file = els.cover?.files?.[0];
+  const fallback = { lat: 34.7466, lon: 113.6254, name: "郑州" };
+  let lat = fallback.lat, lon = fallback.lon, place = fallback.name;
 
-      const books = loadBooks();
-      let cover = "";
-      if (file){
-        cover = await fileToDataUrl(file);
-      }
-      books.push({ title, cover, note });
-      saveBooks(books);
+  try{
+    if (navigator.geolocation){
+      const pos = await new Promise((resolve,reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy:false, timeout:6000 });
+      });
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      place = "当前位置";
+    }
+  }catch(_){}
 
-      if (els.title) els.title.value = "";
-      if (els.note) els.note.value = "";
-      if (els.cover) els.cover.value = "";
-
-      render();
-      flowerTick();
-      const btn = document.getElementById("upload-book");
-      if (btn){
-        const rect = btn.getBoundingClientRect();
-        spawnPetalsAt(rect.left + rect.width/2, rect.top + rect.height/2, 16);
-      }
-    });
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`;
+    const res = await fetch(url, {cache:"no-store"});
+    const data = await res.json();
+    const t = data?.current?.temperature_2m;
+    const code = data?.current?.weather_code;
+    const wt = codeToText(code);
+    setText(`天气：${place} · ${typeof t === "number" ? t.toFixed(0)+"°C" : "--"} · ${wt.label}`);
+    document.body.dataset.weather = wt.kind;
+  }catch(_){
+    setText(`天气：${place} · 暂不可用`);
+    document.body.dataset.weather = "unknown";
   }
+}
+function codeToText(code){
+  if (code === undefined || code === null) return {label:"—", kind:"unknown"};
+  if ([0].includes(code)) return {label:"晴", kind:"sun"};
+  if ([1,2,3].includes(code)) return {label:"多云", kind:"cloud"};
+  if ([45,48].includes(code)) return {label:"雾", kind:"fog"};
+  if ([51,53,55,61,63,65,80,81,82].includes(code)) return {label:"雨", kind:"rain"};
+  if ([71,73,75,77,85,86].includes(code)) return {label:"雪", kind:"snow"};
+  if ([95,96,99].includes(code)) return {label:"雷雨", kind:"rain"};
+  return {label:"天气", kind:"unknown"};
+}
 
-  // ornaments
+function setupNavMore(){
+  const btn = els.navMoreBtn;
+  const menu = els.navMoreMenu;
+  if (!btn || !menu) return;
+  const toggle = () => {
+    const show = menu.style.display !== "block";
+    menu.style.display = show ? "block" : "none";
+    menu.setAttribute("aria-hidden", show ? "false" : "true");
+  };
+  btn.addEventListener("click", (e) => { e.stopPropagation(); toggle(); burstAt(btn, 8); });
+  document.addEventListener("click", () => {
+    menu.style.display = "none";
+    menu.setAttribute("aria-hidden","true");
+  });
+}
+
+function setup(){
+  els.add?.addEventListener("click", (e) => {
+    const books = loadBooks();
+    books.push({ title:"未命名", cover:"", note:"" });
+    saveBooks(books); render(); flowerTick(); spawnPetalsAt(e.clientX, e.clientY, 12);
+  });
+  els.remove?.addEventListener("click", (e) => {
+    const books = loadBooks(); books.pop();
+    saveBooks(books); render(); flowerTick(); spawnPetalsAt(e.clientX, e.clientY, 12);
+  });
+  els.clear?.addEventListener("click", (e) => {
+    if (!confirm("确定要清空阅读书架吗？（会删除本机保存的数据）")) return;
+    saveBooks([]); render(); flowerTick(); spawnPetalsAt(e.clientX, e.clientY, 16);
+  });
+
+  els.form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = (els.title?.value || "").trim() || "未命名";
+    const note = (els.note?.value || "").trim();
+    const file = els.cover?.files?.[0];
+
+    const books = loadBooks();
+    let cover = "";
+    if (file) cover = await fileToDataUrl(file);
+    books.push({ title, cover, note });
+    saveBooks(books);
+
+    if (els.title) els.title.value = "";
+    if (els.note) els.note.value = "";
+    if (els.cover) els.cover.value = "";
+
+    render(); flowerTick();
+    burstAt(document.getElementById("upload-book"), 16);
+  });
+
   document.querySelectorAll(".ornament").forEach(btn => {
     btn.addEventListener("click", (e) => spawnPetalsAt(e.clientX, e.clientY, 14));
   });
 
   render();
+  setupNavMore();
+  initWeather();
 }
 
 window.addEventListener("load", setup);

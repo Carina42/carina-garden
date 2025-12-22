@@ -4,15 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>阅读书架 · 小娜花园</title>
+  <meta name="description" content="小娜花园的赛博书架：把读过的书摆进书架，记录封面与笔记。"/>
   <link rel="stylesheet" href="style.css"/>
   <script defer src="reading.js"></script>
 </head>
-<body class="morandi-theme" data-theme="fern">
+<body class="morandi-theme" data-theme="fern" data-weather="unknown">
   <div class="garden-frame" aria-hidden="true">
-    <button class="ornament corner tl" data-orn="tl" tabindex="-1" aria-hidden="true"></button>
-    <button class="ornament corner tr" data-orn="tr" tabindex="-1" aria-hidden="true"></button>
-    <button class="ornament corner bl" data-orn="bl" tabindex="-1" aria-hidden="true"></button>
-    <button class="ornament corner br" data-orn="br" tabindex="-1" aria-hidden="true"></button>
+    <button class="ornament corner tl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
+    <button class="ornament corner tr" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
+    <button class="ornament corner bl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
+    <button class="ornament corner br" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
   </div>
 
   <div class="page-container">
@@ -27,6 +28,12 @@
         <a href="#" class="nav-disabled" title="待建造">写作</a>
         <a href="#" class="nav-disabled" title="待建造">睡眠</a>
         <a href="#" class="nav-disabled" title="待建造">运动</a>
+
+        <button id="navMoreBtn" class="nav-more sparkle" type="button" aria-label="更多页面">更多 ▾</button>
+        <div id="navMoreMenu" class="nav-more-menu" role="menu" aria-hidden="true">
+          <a role="menuitem" href="#" class="nav-disabled">待办（待建造）</a>
+          <a role="menuitem" href="#" class="nav-disabled">目标（待建造）</a>
+        </div>
       </nav>
     </header>
 
@@ -34,7 +41,7 @@
       <section class="card">
         <div class="card-header">
           <h2>书架管理</h2>
-          <span class="pill">本地保存</span>
+          <span class="pill" id="weatherPill">天气：加载中</span>
         </div>
 
         <div class="shelf-controls">
@@ -89,7 +96,7 @@
       <section class="card">
         <div class="card-header">
           <h2>阅读记录表</h2>
-          <span class="hint">点书脊也会闪一下小花</span>
+          <span class="hint">点书脊会飞花瓣</span>
         </div>
 
         <div class="table-wrap">
@@ -110,6 +117,7 @@
 
     <footer class="site-footer">
       <a class="footer-back" href="index.html">← 回到花园</a>
+      <div class="footer-note">小娜花园 · v10</div>
     </footer>
   </div>
 </body>
