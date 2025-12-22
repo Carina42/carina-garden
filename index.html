@@ -4,87 +4,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>柴窝之家 | 读书记录</title>
+  <title>柴窝之家 | 总览</title>
   <style>
     :root {
       --bg-light: #f9fdfb;
       --bg-dark: #2f2f2f;
       --main-color: #a6c8af;
-      --accent-color: #f2ebe9;
       --font-color: #333;
     }
     body {
-      margin: 0;
       font-family: "Hiragino Sans GB", "Helvetica Neue", sans-serif;
+      margin: 0;
+      padding: 0;
       background-color: var(--bg-light);
       color: var(--font-color);
-      transition: background-color 0.3s ease;
-    }
-    header {
-      background-color: var(--main-color);
-      padding: 1.5rem;
-      text-align: center;
-      color: white;
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-    .controls {
-      text-align: center;
-      margin: 1rem;
-    }
-    .controls button {
-      font-size: 1.2rem;
-      padding: 0.5rem 1rem;
-      margin: 0 0.5rem;
-    }
-    #count {
-      font-size: 1.5rem;
-      margin: 1rem 0;
-    }
-    .bookshelf {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .shelf-row {
-      display: flex;
-      justify-content: center;
-      margin: 0.5rem;
-    }
-    .book {
-      width: 40px;
-      height: 60px;
-      background-color: #d6d6d6;
-      margin: 0 3px;
-      background-size: cover;
-      border-radius: 4px;
-    }
-    .flower {
-      width: 80px;
-      height: 80px;
-      background-image: url('flower.svg');
-      background-size: contain;
-      background-repeat: no-repeat;
-      animation: bloom 1s ease-out forwards;
-      margin: 1rem auto;
-    }
-    @keyframes bloom {
-      from {
-        transform: scale(0);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .dark {
       background-color: var(--bg-dark);
       color: white;
     }
+    header {
+      background-color: var(--main-color);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem auto;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: white;
+      width: 240px;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      text-align: center;
+      text-decoration: none;
+      color: var(--font-color);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .dark .card {
+      background: #444;
+      color: white;
+    }
+    .summary {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #666;
+    }
     .toggle-theme {
-      margin-top: 1rem;
+      display: block;
+      margin: 1rem auto;
       font-size: 0.9rem;
       background: none;
       border: 1px solid var(--main-color);
@@ -92,126 +72,38 @@
       padding: 0.3rem 0.6rem;
       cursor: pointer;
     }
-    table {
-      margin: 0 auto 2rem;
-      border-collapse: collapse;
-      width: 90%;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 0.5rem;
-      text-align: center;
-    }
-    input[type="text"] {
-      width: 100%;
-    }
   </style>
 </head>
 <body>
-  <header>📚 柴窝之家 · 阅读页</header>
-  <div class="controls">
-    <div>
-      <button onclick="changeCount(-1)">➖</button>
-      <span id="count">0</span>
-      <button onclick="changeCount(1)">➕</button>
-    </div>
-    <button class="toggle-theme" onclick="toggleTheme()">切换主题</button>
-  </div>
+  <header>🏡 柴窝之家 · 总览页</header>
 
-  <div class="bookshelf" id="bookshelf"></div>
-  <div id="flower-container"></div>
+  <nav>
+    <a class="card" href="reading.html">
+      📖 阅读进度
+      <div class="summary">你已读 <span id="readCount">0</span> 本书 🌸</div>
+    </a>
+    <a class="card" href="#">
+      🏃‍♀️ 运动记录
+      <div class="summary">开发中…</div>
+    </a>
+    <a class="card" href="#">
+      😴 睡眠追踪
+      <div class="summary">开发中…</div>
+    </a>
+    <a class="card" href="#">
+      📝 灵感笔记
+      <div class="summary">开发中…</div>
+    </a>
+  </nav>
 
-  <table id="bookTable">
-    <thead>
-      <tr><th>书名</th><th>作者</th><th>标签</th><th>读后感</th><th>上传封面</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <button class="toggle-theme" onclick="toggleTheme()">切换日夜模式</button>
 
   <script>
-    let count = parseInt(localStorage.getItem("bookCount")) || 0;
-    let covers = JSON.parse(localStorage.getItem("bookCovers") || "[]");
-    const countDisplay = document.getElementById("count");
-    const bookshelf = document.getElementById("bookshelf");
-    const flowerContainer = document.getElementById("flower-container");
-    const table = document.getElementById("bookTable").querySelector("tbody");
-
-    function updateShelf() {
-      bookshelf.innerHTML = "";
-      for (let i = 0; i < Math.ceil(count / 10); i++) {
-        const row = document.createElement("div");
-        row.className = "shelf-row";
-        for (let j = 0; j < 10; j++) {
-          const index = i * 10 + j;
-          if (index >= count) break;
-          const book = document.createElement("div");
-          book.className = "book";
-          if (covers[index]) book.style.backgroundImage = `url('${covers[index]}')`;
-          row.appendChild(book);
-        }
-        bookshelf.appendChild(row);
-      }
-      updateFlowers();
-    }
-
-    function updateFlowers() {
-      flowerContainer.innerHTML = "";
-      const flowerCount = Math.floor(count / 10);
-      for (let i = 0; i < flowerCount; i++) {
-        const flower = document.createElement("div");
-        flower.className = "flower";
-        flowerContainer.appendChild(flower);
-      }
-    }
-
-    function changeCount(delta) {
-      count = Math.max(0, count + delta);
-      countDisplay.textContent = count;
-      localStorage.setItem("bookCount", count);
-      updateShelf();
-      while (table.rows.length < count) addRow();
-      while (table.rows.length > count) table.deleteRow(-1);
-    }
-
     function toggleTheme() {
-      document.body.classList.toggle("dark");
+      document.body.classList.toggle('dark');
     }
-
-    function handleUpload(index, file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        covers[index] = e.target.result;
-        localStorage.setItem("bookCovers", JSON.stringify(covers));
-        updateShelf();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function addRow() {
-      const row = document.createElement("tr");
-      for (let i = 0; i < 4; i++) {
-        const td = document.createElement("td");
-        const input = document.createElement("input");
-        input.type = "text";
-        td.appendChild(input);
-        row.appendChild(td);
-      }
-      const tdUpload = document.createElement("td");
-      const inputFile = document.createElement("input");
-      inputFile.type = "file";
-      inputFile.accept = "image/*";
-      inputFile.onchange = (e) => handleUpload(table.rows.length, e.target.files[0]);
-      tdUpload.appendChild(inputFile);
-      row.appendChild(tdUpload);
-      table.appendChild(row);
-    }
-
-    // 初始化
-    countDisplay.textContent = count;
-    updateShelf();
-    for (let i = 0; i < count; i++) addRow();
+    const count = localStorage.getItem("bookCount") || 0;
+    document.getElementById("readCount").textContent = count;
   </script>
 </body>
 </html>
