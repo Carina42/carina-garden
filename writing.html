@@ -8,17 +8,48 @@
   <link href="chatbot.css" rel="stylesheet"/>
   <link href="manifest.json" rel="manifest"/>
   
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:italic&display=swap');
+    
+    #woolfQuote {
+      font-family: 'Libre Baskerville', 'Georgia', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--ink);
+      line-height: 1.5;
+      display: block;
+      margin-top: 8px;
+      letter-spacing: -0.01em;
+      opacity: 0.9;
+    }
+    #woolfQuoteSource {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-top: 4px;
+      display: block;
+    }
+    /* 解决拥挤感：增加卡片间距 */
+    .main-content {
+      gap: 30px !important;
+      padding-bottom: 50px;
+    }
+    .card {
+      padding: 30px !important; /* 内部更宽绰 */
+    }
+  </style>
+
   <script defer src="themePicker.js"></script>
   <script defer src="pwa.js"></script>
   <script defer src="writing.js"></script>
   <script defer src="chatbot.js"></script>
   <script defer src="woolfQuotes.js"></script>
   <script defer src="quoteInit.js"></script>
-  <script defer src="sync.js"></script>
-</head>
+  <script defer src="weather.js"></script> </head>
 
 <body class="morandi-theme" data-theme="fern" data-weather="unknown">
-
   <div class="garden-frame" aria-hidden="true">
     <div id="weatherLayer" class="weather-layer" aria-hidden="true"></div>
     <button class="ornament corner tl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
@@ -36,6 +67,13 @@
           <cite id="woolfQuoteSource">— The Waves</cite>
         </div>
       </div>
+      <div class="header-side">
+        <div id="weather-widget" class="weather-widget">
+          <span id="wxIcon">🌿</span>
+          <span id="wxDesc">加载中...</span>
+        </div>
+        <button id="themeBtn" class="btn btn-ghost">🎨 主题</button>
+      </div>
     </header>
 
     <nav class="top-nav">
@@ -52,57 +90,57 @@
           <h2>今日写作</h2>
         </div>
         <div class="summary-grid">
-          <div class="row">
-            <input class="input" id="wWords" min="0" placeholder="今日字数..." type="number" style="flex:1"/>
-            <select class="input" id="wMood" style="width:100px">
+          <div class="row" style="gap: 15px;">
+            <input class="input" id="wWords" min="0" placeholder="今日字数..." type="number" style="flex:2"/>
+            <select class="input" id="wMood" style="flex:1">
               <option value="happy">顺利</option>
               <option value="normal">平淡</option>
               <option value="blocked">卡顿</option>
               <option value="tired">疲惫</option>
             </select>
-            <button class="btn btn-primary" id="wSave">记录</button>
+            <button class="btn btn-primary" id="wSave">保存记录</button>
           </div>
         </div>
         
-        <div class="divider"></div>
+        <div class="divider" style="margin: 25px 0;"></div>
         
-        <div class="summary-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="summary-grid" style="grid-template-columns: 1fr 1.5fr; gap: 30px;">
           <div class="summary-item">
-            <div class="mini-title">本月累计</div>
-            <div class="big-num" id="wMonthTotal">0</div>
+            <div class="mini-title">本月累计 (字)</div>
+            <div class="big-num" id="wMonthTotal" style="font-size: 2.5rem; color: var(--accent);">0</div>
           </div>
           <div class="summary-item">
-            <div class="mini-title">鼓励语</div>
-            <div class="encourage" id="wEncourage" style="font-style: italic; color: var(--muted); margin-top:8px;">——</div>
+            <div class="mini-title">阿柴的鼓励</div>
+            <div id="wEncourage" style="font-style: italic; color: var(--muted); margin-top:12px; line-height:1.6;">——</div>
           </div>
         </div>
       </section>
 
       <section class="card">
         <div class="card-header">
-          <h2>写作记录</h2>
-          <span class="hint">最近 14 天写作热力</span>
+          <h2>写作热力图</h2>
+          <span class="hint">最近 14 天的坚持</span>
         </div>
-        <div class="mini-heat" id="wHeat" style="margin-top: 15px;"></div>
+        <div class="mini-heat" id="wHeat" style="margin-top: 20px;"></div>
       </section>
-
-      <button id="chat-button" class="chat-fab sparkle">☁️</button>
-      <div id="chat-window" class="chat-window" aria-hidden="true">
-        <div class="chat-header">
-          <div class="chat-title">阿柴 · 小窗</div>
-          <button id="chat-close" class="btn btn-ghost">关闭</button>
-        </div>
-        <div class="chat-body" id="chatBody"></div>
-        <div class="chat-input">
-          <input id="chatInput" class="input" placeholder="对阿柴说点什么…" />
-          <button id="chatSend" class="btn btn-primary">发送</button>
-        </div>
-      </div>
     </main>
+
+    <button id="chat-button" class="chat-fab sparkle">☁️</button>
+    <div id="chat-window" class="chat-window" aria-hidden="true">
+      <div class="chat-header">
+        <div class="chat-title">阿柴 · 小窗</div>
+        <button id="chat-close" class="btn btn-ghost">关闭</button>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-input">
+        <input id="chatInput" class="input" placeholder="对阿柴说点什么…" />
+        <button id="chatSend" class="btn btn-primary">发送</button>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <div class="footer-right">
-        <span>小娜花园 · 写作追踪页</span>
+        <span>Virginia's Garden © 2024</span>
       </div>
     </footer>
   </div>
