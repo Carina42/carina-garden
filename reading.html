@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>阅读书架 · 小娜花园</title>
   <meta name="description" content="小娜花园的赛博书架：把读过的书摆进书架，记录封面与笔记。"/>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8aa39a">
   <link rel="stylesheet" href="style.css"/>
   <script defer src="reading.js"></script>
 </head>
 <body class="morandi-theme" data-theme="fern" data-weather="unknown">
   <div class="garden-frame" aria-hidden="true">
+    <div id="weatherLayer" class="weather-layer" aria-hidden="true"></div>
     <button class="ornament corner tl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
     <button class="ornament corner tr" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
     <button class="ornament corner bl" tabindex="-1" aria-hidden="true"><span class="wx"></span></button>
@@ -23,17 +26,36 @@
         <div class="tagline">把读过的书，一本一本摆进赛博书架里</div>
       </div>
       <nav class="top-nav" aria-label="主导航">
-        <a href="index.html">主页</a>
-        <a href="reading.html" class="active">阅读</a>
-        <a href="#" class="nav-disabled" title="待建造">写作</a>
-        <a href="#" class="nav-disabled" title="待建造">睡眠</a>
-        <a href="#" class="nav-disabled" title="待建造">运动</a>
+        <a href="index.html" data-mobile="show">主页</a>
+        <a href="reading.html" class="active" data-mobile="show">阅读</a>
+        <a href="writing.html" data-mobile="show">写作</a>
+        <a href="sleep.html" data-mobile="show">睡眠</a>
+        <a href="exercise.html" data-mobile="hide">运动</a>
+        <a href="todo.html" data-mobile="hide">待办</a>
+        <a href="goals.html" data-mobile="hide">目标</a>
 
         <button id="navMoreBtn" class="nav-more sparkle" type="button" aria-label="更多页面">更多 ▾</button>
-        <div id="navMoreMenu" class="nav-more-menu" role="menu" aria-hidden="true">
-          <a role="menuitem" href="#" class="nav-disabled">待办（待建造）</a>
-          <a role="menuitem" href="#" class="nav-disabled">目标（待建造）</a>
+        <div id="navMoreMenu" class="nav-more-menu" role="menu" aria-hidden="true"></div>
+
+        
+  <!-- Theme picker -->
+  <button id="themeBtn" class="btn btn-soft sparkle theme-btn" type="button" aria-label="打开主题选择">🎨 主题</button>
+
+  <div id="themeModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" id="themeBackdrop"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-label="主题选择">
+      <div class="modal-header">
+        <div class="modal-title">主题选择 · 莫兰迪植物系</div>
+        <div class="modal-actions">
+          <button id="toggleNight" class="btn btn-ghost sparkle" type="button" title="日夜切换">🌙/☀️</button>
+          <button id="closeTheme" class="btn btn-ghost sparkle" type="button">关闭</button>
         </div>
+      </div>
+      <div class="theme-grid" id="themeGrid"></div>
+      <div class="modal-foot">提示：主题会保存在本机浏览器（手机与电脑各自保存）。</div>
+    </div>
+  </div>
+
       </nav>
     </header>
 
@@ -117,7 +139,7 @@
 
     <footer class="site-footer">
       <a class="footer-back" href="index.html">← 回到花园</a>
-      <div class="footer-note">小娜花园 · v10</div>
+      <div class="footer-note">小娜花园 · v11</div>
     </footer>
   </div>
 </body>

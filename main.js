@@ -1,9 +1,10 @@
-// 小娜花园 · main.js (v10)
+// 小娜花园 · main.js (v11)
+// 目标：不拆旧功能，只加：主题选择、雨天边框真实雨丝、太阳光、导出导入、移动端更多自动收纳。
+
 let timer;
 let timeLeft = 25 * 60;
 let isRunning = false;
 
-// Morandi-ish palette for progress bar accents
 const morandi = [
   {a:"#8aa39a", b:"#cbbfae"},
   {a:"#97a7b3", b:"#d6cbbd"},
@@ -11,6 +12,19 @@ const morandi = [
   {a:"#a3a9be", b:"#cbb4a7"},
   {a:"#7f9a90", b:"#bfb7aa"},
   {a:"#8fa2b6", b:"#d0c2b4"},
+  {a:"#b78f92", b:"#d6cbbd"},
+  {a:"#a29b7d", b:"#d6cbbd"},
+  {a:"#6f7d86", b:"#cbbfae"},
+];
+
+const themes = [
+  { id:"fern",  name:"蕨绿", a:"#8aa39a", b:"#cbbfae", c:"#a7b3c1"},
+  { id:"moss",  name:"苔影", a:"#7f9a90", b:"#c7bfb1", c:"#9fb0a5"},
+  { id:"clay",  name:"陶土", a:"#a07f73", b:"#cbbfae", c:"#a9b1b9"},
+  { id:"mist",  name:"雾蓝", a:"#8fa2b6", b:"#d0c2b4", c:"#a3a9be"},
+  { id:"rose",  name:"蔷薇", a:"#b78f92", b:"#d6cbbd", c:"#9aa8a1"},
+  { id:"wheat", name:"麦穗", a:"#a29b7d", b:"#d6cbbd", c:"#8fa2b6"},
+  { id:"ink",   name:"墨青", a:"#6f7d86", b:"#cbbfae", c:"#97a7b3"},
 ];
 
 const woolfQuotes = [
@@ -27,7 +41,6 @@ const woolfQuotes = [
   "把今天当作一株新芽：轻轻浇水，不必拽着它长大。",
 ];
 
-// Offline Chai assistant DB (keyword -> responses)
 const chaiDB = [
   {k:["你好","在吗","阿柴","柴柴","嘿","哈喽"], r:[
     "小娜，我在。今天你想让花园里哪一块更舒服一点？",
@@ -89,11 +102,68 @@ const chaiDB = [
 function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function hasAny(text, keys){ return keys.some(k => text.includes(k)); }
 
-// Accent picker (for progress bar)
-function pickAccent(){
-  const pick = rand(morandi);
-  const bar = document.getElementById("yearProgressBar");
-  if (bar) bar.style.background = `linear-gradient(90deg, ${pick.a}, ${pick.b})`;
+// Theme apply
+function applyTheme(themeId){
+  document.body.dataset.theme = themeId;
+  localStorage.setItem("xn_theme", themeId);
+}
+function applyNight(isNight){
+  document.body.classList.toggle("night", !!isNight);
+  localStorage.setItem("xn_night", isNight ? "1" : "0");
+}
+
+function buildThemeGrid(){
+  const grid = document.getElementById("themeGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  themes.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "theme-card sparkle";
+    card.innerHTML = `
+      <div class="swatches">
+        <div class="sw" style="background:${t.a}"></div>
+        <div class="sw" style="background:${t.b}"></div>
+        <div class="sw" style="background:${t.c}"></div>
+      </div>
+      <div class="theme-name">${t.name}</div>
+    `;
+    card.addEventListener("click", () => {
+      applyTheme(t.id);
+      burstAt(card, 12);
+      pickAccent(); // sync progress bar
+      closeThemeModal();
+    });
+    grid.appendChild(card);
+  });
+}
+function openThemeModal(){
+  const m = document.getElementById("themeModal");
+  if (!m) return;
+  m.style.display = "block";
+  m.setAttribute("aria-hidden","false");
+}
+function closeThemeModal(){
+  const m = document.getElementById("themeModal");
+  if (!m) return;
+  m.style.display = "none";
+  m.setAttribute("aria-hidden","true");
+}
+function setupThemeModal(){
+  buildThemeGrid();
+  document.getElementById("themeBtn")?.addEventListener("click", (e) => { openThemeModal(); spawnPetals(e.clientX, e.clientY, 10); });
+  document.getElementById("closeTheme")?.addEventListener("click", closeThemeModal);
+  document.getElementById("themeBackdrop")?.addEventListener("click", closeThemeModal);
+  document.getElementById("toggleNight")?.addEventListener("click", (e) => {
+    const next = !document.body.classList.contains("night");
+    applyNight(next);
+    spawnPetals(e.clientX, e.clientY, 10);
+  });
+
+  // load saved
+  const savedTheme = localStorage.getItem("xn_theme") || "fern";
+  applyTheme(savedTheme);
+  const savedNight = localStorage.getItem("xn_night") === "1";
+  applyNight(savedNight);
 }
 
 // Quote
@@ -117,6 +187,12 @@ function initYearProgress(){
   if (bar) bar.style.width = pct + "%";
   if (pctEl) pctEl.textContent = pct + "%";
   if (txt) txt.textContent = `已过 ${passed} 天 / 共 ${total} 天`;
+}
+
+function pickAccent(){
+  const pick = rand(morandi);
+  const bar = document.getElementById("yearProgressBar");
+  if (bar) bar.style.background = `linear-gradient(90deg, ${pick.a}, ${pick.b})`;
 }
 
 // Pomodoro
@@ -183,6 +259,51 @@ function clearMoodTodo(){
   burstAt(document.getElementById("clearMoodTodo"), 12);
 }
 
+// Export/Import (解决电脑/手机不同步：用文件同步)
+function exportData(){
+  const payload = {
+    version: "xn_garden_v11",
+    time: new Date().toISOString(),
+    localStorage: {}
+  };
+  for (let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (k.startsWith("xn_") || k.startsWith("today") || k.startsWith("xn_garden_") || k.startsWith("xn_garden")){
+      payload.localStorage[k] = localStorage.getItem(k);
+    }
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "小娜花园_数据备份.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 800);
+  burstAt(document.getElementById("exportData"), 12);
+}
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(String(reader.result));
+      const kv = data?.localStorage || {};
+      Object.keys(kv).forEach(k => localStorage.setItem(k, kv[k]));
+      updateMoodTodoDisplay();
+      pickAccent();
+      initYearProgress();
+      const savedTheme = localStorage.getItem("xn_theme") || "fern";
+      applyTheme(savedTheme);
+      const savedNight = localStorage.getItem("xn_night") === "1";
+      applyNight(savedNight);
+      setRandomQuote();
+      alert("导入完成 ✅（如果你也导入了阅读/待办数据，去对应页面刷新即可）");
+    }catch(e){
+      alert("导入失败：文件不是正确的备份格式。");
+    }
+  };
+  reader.readAsText(file);
+}
+
 // Petals
 function spawnPetals(x, y, n = 10){
   for (let i=0;i<n;i++){
@@ -207,7 +328,64 @@ function burstAt(target, n=10){
   spawnPetals(r.left + r.width/2, r.top + r.height/2, n);
 }
 
-// Weather (real, via Open-Meteo) -> updates data-weather for frame
+// Weather layer effects (rain strips in border + sunlight)
+function clearWeatherLayer(){
+  const layer = document.getElementById("weatherLayer");
+  if (!layer) return;
+  layer.innerHTML = "";
+}
+function renderWeatherLayer(kind){
+  const layer = document.getElementById("weatherLayer");
+  if (!layer) return;
+  layer.innerHTML = "";
+
+  if (kind === "rain"){
+    // "真实雨水一样掉下来的效果"：只在边框区域落雨（左右两条雨幕 + 上边缘少量）
+    const w = window.innerWidth;
+    const leftStrip = 140;
+    const rightStripStart = w - 140;
+
+    const makeDrop = (xMin, xMax) => {
+      const d = document.createElement("div");
+      d.className = "raindrop";
+      const x = xMin + Math.random()*(xMax-xMin);
+      const top = -Math.random()*400;
+      const dur = 1.2 + Math.random()*1.2;
+      const delay = Math.random()*1.6;
+      d.style.left = x + "px";
+      d.style.top = top + "px";
+      d.style.animationDuration = dur + "s";
+      d.style.animationDelay = delay + "s";
+      d.style.opacity = String(0.55 + Math.random()*0.35);
+      d.style.height = (14 + Math.random()*26) + "px";
+      layer.appendChild(d);
+    };
+
+    // sides
+    for (let i=0;i<52;i++){
+      if (Math.random() < 0.5) makeDrop(0, leftStrip);
+      else makeDrop(rightStripStart, w);
+    }
+    // a few along top border
+    for (let i=0;i<12;i++){
+      const d = document.createElement("div");
+      d.className = "raindrop";
+      d.style.left = (Math.random()*w) + "px";
+      d.style.top = (-Math.random()*160) + "px";
+      d.style.animationDuration = (1.1 + Math.random()*1.3) + "s";
+      d.style.animationDelay = (Math.random()*1.2) + "s";
+      d.style.opacity = String(0.35 + Math.random()*0.25);
+      d.style.height = (10 + Math.random()*18) + "px";
+      layer.appendChild(d);
+    }
+  } else if (kind === "sun"){
+    const s = document.createElement("div");
+    s.className = "sunlight";
+    layer.appendChild(s);
+  }
+}
+
+// Weather (real, via Open-Meteo)
 async function initWeather(){
   const pill = document.getElementById("weatherPill");
   const setText = (t) => { if (pill) pill.textContent = t; };
@@ -233,11 +411,15 @@ async function initWeather(){
     const t = data?.current?.temperature_2m;
     const code = data?.current?.weather_code;
     const wt = codeToText(code);
+
     setText(`天气：${place} · ${typeof t === "number" ? t.toFixed(0)+"°C" : "--"} · ${wt.label}`);
     document.body.dataset.weather = wt.kind;
+
+    renderWeatherLayer(wt.kind);
   }catch(_){
     setText(`天气：${place} · 暂不可用`);
     document.body.dataset.weather = "unknown";
+    clearWeatherLayer();
   }
 }
 function codeToText(code){
@@ -251,7 +433,7 @@ function codeToText(code){
   return {label:"天气", kind:"unknown"};
 }
 
-// Chat window
+// Chat
 function toggleChat(){
   const chat = document.getElementById("chat-window");
   if (!chat) return;
@@ -272,9 +454,6 @@ function appendChat(role, text){
 function chaiReply(text){
   const t = (text || "").trim();
   if (!t) return "小娜，我在。你想先做一个最小动作，还是先被抱一下？";
-  if (t === "来一句" || t === "一句" || t.includes("随机")) return "那就来一句：做一点点就很好，一点点就是路。";
-  if (t.includes("夸夸")) return "夸！你能一次次回来继续建花园，这本身就是罕见的韧性。";
-  if (t.includes("抱抱")) return "抱抱。你可以把今天交给我一半，我们慢慢来。";
 
   const mood = localStorage.getItem("todayMood") || "";
   const todo = localStorage.getItem("todayTodo") || "";
@@ -302,7 +481,7 @@ function setupChat(){
       if (!msg) return;
       appendChat("me", msg);
       input.value = "";
-      setTimeout(() => appendChat("bot", chaiReply(msg)), 180);
+      setTimeout(() => appendChat("bot", chaiReply(msg)), 160);
       burstAt(send, 8);
     };
     send.addEventListener("click", doSend);
@@ -310,11 +489,34 @@ function setupChat(){
   }
 }
 
-// mobile nav "more"
+// Mobile nav "more" - build menu from hidden links so desktop never shows "更多"
 function setupNavMore(){
   const btn = document.getElementById("navMoreBtn");
   const menu = document.getElementById("navMoreMenu");
   if (!btn || !menu) return;
+
+  const rebuildMenu = () => {
+    menu.innerHTML = "";
+    const hiddenLinks = Array.from(document.querySelectorAll('.top-nav a[data-mobile="hide"]'));
+    hiddenLinks.forEach(a => {
+      const clone = a.cloneNode(true);
+      clone.setAttribute("role","menuitem");
+      menu.appendChild(clone);
+    });
+  };
+  rebuildMenu();
+
+  const shouldShow = () => window.matchMedia("(max-width: 640px)").matches;
+  const syncVisibility = () => {
+    btn.style.display = shouldShow() ? "inline-flex" : "none";
+    if (!shouldShow()){
+      menu.style.display = "none";
+      menu.setAttribute("aria-hidden","true");
+    }
+  };
+  syncVisibility();
+  window.addEventListener("resize", syncVisibility);
+
   const toggle = () => {
     const show = menu.style.display !== "block";
     menu.style.display = show ? "block" : "none";
@@ -334,11 +536,19 @@ function setupOrnaments(){
   });
 }
 
+// Service worker
+function setupPWA(){
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
 window.addEventListener("load", () => {
+  setupThemeModal();
   pickAccent();
   setRandomQuote();
   initYearProgress();
   initWeather();
+  setupPWA();
 
   const refresh = document.getElementById("refreshQuote");
   if (refresh) refresh.addEventListener("click", (e) => { setRandomQuote(); spawnPetals(e.clientX, e.clientY, 10); });
@@ -348,6 +558,16 @@ window.addEventListener("load", () => {
 
   document.getElementById("saveMoodTodo")?.addEventListener("click", saveMoodTodo);
   document.getElementById("clearMoodTodo")?.addEventListener("click", clearMoodTodo);
+
+  document.getElementById("exportData")?.addEventListener("click", exportData);
+  const importFile = document.getElementById("importFile");
+  if (importFile){
+    importFile.addEventListener("change", () => {
+      const f = importFile.files?.[0];
+      if (f) importData(f);
+      importFile.value = "";
+    });
+  }
 
   const tomato = document.getElementById("tomato");
   if (tomato){
