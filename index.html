@@ -2,12 +2,11 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>柴窝之家 · 首页</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柴窝之家 · 首页升级版</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <nav class="top-nav">
     <a href="index.html">🏡 首页</a>
     <a href="reading.html">📚 阅读</a>
@@ -15,40 +14,62 @@
     <a href="sleep.html">🌙 睡眠</a>
     <a href="exercise.html">🏃 运动</a>
     <a href="goals.html">🎯 年度目标</a>
+    <a href="todo.html">📋 待办</a>
   </nav>
 
-  <main class="centered-container">
-    <h1 class="title">柴窝之家 · 精致版</h1>
+  <div class="decorative-border" id="decorative-border"></div>
 
-    <section class="year-progress plant-progress">
-      <p id="year-text">正在计算年度进度...</p>
-      <div class="progress-bar plant-bar">
-        <div class="progress-fill" id="progress-fill"></div>
+  <main class="centered-container">
+    <section class="summary-panel">
+      <h1>🌤 今日摘要</h1>
+      <p id="summary-placeholder">今日你完成了 3 项任务，阅读 1 本书，写作了 623 字，心情是 ☀️，继续加油～</p>
+    </section>
+
+    <section class="todo-highlight">
+      <h2>📌 优先待办事项</h2>
+      <p id="top-todo">整理 garden 小论文大纲（点击进入待办页面）</p>
+      <a href="todo.html" class="todo-link">🔗 进入待办事项管理</a>
+    </section>
+
+    <section class="pomodoro-timer">
+      <h2>🍅 番茄钟</h2>
+      <div id="tomato" class="tomato">
+        <span id="timer-display">25:00</span>
       </div>
+      <div class="tomato-controls">
+        <button onclick="startPomodoro()">▶️ 开始</button>
+        <button onclick="pausePomodoro()">⏸ 暂停</button>
+        <button onclick="resetPomodoro()">🔄 重置</button>
+      </div>
+      <div class="tomato-completed" id="tomato-done"></div>
     </section>
 
     <section class="quote-box">
-      <p id="woolf-quote">伍尔夫语录加载中…</p>
+      <h2>🌼 伍尔夫语录</h2>
+      <p id="woolf-quote">"A woman must have money and a room of her own if she is to write fiction."</p>
     </section>
 
     <section class="weather-info">
+      <h2>🌦 当前天气</h2>
       <p id="weather-text">天气加载中…</p>
     </section>
 
-    <section class="module-preview">
-      <h2>📚 阅读状态</h2>
-      <p>今年已读 <span id="reading-count">0</span> 本书</p>
+    <section class="year-progress">
+      <h2>📅 年度进度</h2>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="year-progress-bar"></div>
+        <span id="year-progress-text">载入中…</span>
+      </div>
     </section>
 
-    <section class="writing-preview">
-      <h2>✍️ 写作追踪</h2>
-      <p>今日写作状态：<span id="writing-status">未开始</span></p>
-      <p>本月累计字数：<span id="writing-words">0</span> 字</p>
-    </section>
-
+    <div class="chat-toggle" onclick="toggleChat()">☁️</div>
+    <div class="chat-window" id="chat-window">
+      <h3>和阿柴聊一聊 🌿</h3>
+      <div id="chat-history"></div>
+      <input type="text" id="chat-input" placeholder="输入内容..."/>
+      <button onclick="sendMessage()">发送</button>
+    </div>
   </main>
-
-  <div id="weather-effect"></div>
 
   <script src="main.js"></script>
 </body>
