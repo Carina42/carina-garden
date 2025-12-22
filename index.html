@@ -8,6 +8,30 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#8aa39a">
   <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    .quote-area { margin-top: 8px; }
+    #woolfQuote { 
+      font-family: "Optima", "Georgia", serif; 
+      font-style: italic; 
+      font-size: 1.1rem; 
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    #woolfQuoteSource { 
+      display: block;
+      margin-top: 4px;
+      font-size: 0.8rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      color: var(--muted);
+      font-style: normal;
+    }
+  </style>
+
+  <script defer src="main.js"></script>
+  <script defer src="woolfQuotes.js"></script>
+  <script defer src="quoteInit.js"></script>
 </head>
 <body class="morandi-theme" data-theme="fern" data-weather="unknown">
   <div class="garden-frame" aria-hidden="true">
@@ -22,105 +46,53 @@
     <header class="site-header">
       <div class="brand">
         <h1>小娜花园 <span class="brand-emoji">🌿</span></h1>
-        <div class="tagline">一座记录成长与生活的温柔小花园 · <span class="tagline-accent">阿柴</span>在旁边看着你</div>
-      </div>
-
-      <nav class="top-nav" aria-label="主导航">
-        <a href="index.html" class="active" data-mobile="show">主页</a>
-        <a href="reading.html" data-mobile="show">阅读</a>
-        <a href="writing.html" data-mobile="show">写作</a>
-        <a href="sleep.html" data-mobile="show">睡眠</a>
-        <a href="exercise.html" data-mobile="hide">运动</a>
-        <a href="todo.html" data-mobile="hide">待办</a>
-        <a href="goals.html" data-mobile="hide">目标</a>
-
-        <button id="navMoreBtn" class="nav-more sparkle" type="button" aria-label="更多页面">更多 ▾</button>
-        <div id="navMoreMenu" class="nav-more-menu" role="menu" aria-hidden="true"></div>
-
-        
-  <!-- Theme picker -->
-  <button id="themeBtn" class="btn btn-soft sparkle theme-btn" type="button" aria-label="打开主题选择">🎨 主题</button>
-
-  <div id="themeModal" class="modal" aria-hidden="true">
-    <div class="modal-backdrop" id="themeBackdrop"></div>
-    <div class="modal-panel" role="dialog" aria-modal="true" aria-label="主题选择">
-      <div class="modal-header">
-        <div class="modal-title">主题选择 · 莫兰迪植物系</div>
-        <div class="modal-actions">
-          <button id="toggleNight" class="btn btn-ghost sparkle" type="button" title="日夜切换">🌙/☀️</button>
-          <button id="closeTheme" class="btn btn-ghost sparkle" type="button">关闭</button>
+        <div class="tagline">
+          <div class="quote-area">
+            <p id="woolfQuote">"I am rooted, but I flow."</p>
+            <cite id="woolfQuoteSource">— The Waves</cite>
+          </div>
         </div>
       </div>
-      <div class="theme-grid" id="themeGrid"></div>
-      <div class="modal-foot">提示：主题会保存在本机浏览器（手机与电脑各自保存）。</div>
-    </div>
-  </div>
-
-      </nav>
+      
+      <div class="header-side">
+        <div id="weather-widget" class="weather-widget">
+          <span id="wxIcon">🌿</span>
+          <span id="wxDesc">加载中...</span>
+        </div>
+        <button id="themeBtn" class="btn btn-ghost" title="切换主题">🎨 主题</button>
+      </div>
     </header>
 
-    <main class="layout">
-      <section class="card quote-card">
-        <div class="card-header">
-          <h2>今日一句 · 伍尔夫</h2>
-          <button id="refreshQuote" class="btn btn-ghost sparkle" type="button" title="换一句">换一句</button>
-        </div>
-        <blockquote id="woolfQuote" class="quote">正在加载……</blockquote>
-      </section>
+    <nav class="top-nav">
+      <a class="nav-item active" href="index.html">🏡 首页</a>
+      <a class="nav-item" href="reading.html">📚 阅读</a>
+      <a class="nav-item" href="writing.html">✍️ 写作</a>
+      <a class="nav-item" href="todo.html">✅ 待办</a>
+      <a class="nav-item" href="focus.html">🎯 目标</a>
+      <a class="nav-item" href="sleep.html">🌙 睡眠</a>
+      <a class="nav-item" href="exercise.html">🏃 运动</a>
+    </nav>
 
-      <section class="card summary-card">
+    <main class="main-content">
+      <section class="card intro-card">
         <div class="card-header">
-          <h2>今日摘要</h2>
-          <span class="pill" id="weatherPill">天气：加载中</span>
+          <h2>今日状态</h2>
+          <button id="refreshQuote" class="btn-icon" title="换一句语录">🌿</button>
         </div>
-
         <div class="summary-grid">
-          <div class="mini">
-            <div class="mini-title">心情</div>
-            <div class="mini-value" id="moodDisplay">今日心情：—</div>
+          <div class="summary-item">
+            <div class="mini-title">年度进展</div>
+            <div class="progress-rail"><div id="yearFill" class="progress-fill"></div></div>
+            <div id="yearText" class="hint">...</div>
           </div>
-          <div class="mini">
-            <div class="mini-title">最优先待办</div>
-            <div class="mini-value" id="todoDisplay">待办优先事项：—</div>
+          <div class="summary-item">
+            <div class="mini-title">今日心情 & 重点</div>
+            <div class="row">
+              <input id="moodInput" class="input" placeholder="此刻心情..." style="flex:1" />
+              <input id="todoInput" class="input" placeholder="今日首要..." style="flex:1" />
+              <button id="saveMoodTodo" class="btn btn-primary">记下</button>
+            </div>
           </div>
-          <div class="mini">
-            <div class="mini-title">今年进度</div>
-            <div class="mini-value" id="yearProgressText">—</div>
-          </div>
-        </div>
-
-        <div class="progress-wrap">
-          <div class="progress-label">
-            <span id="yearProgressLabel">今年进度</span>
-            <span id="yearPercent">0%</span>
-          </div>
-          <div class="progress">
-            <div id="yearProgressBar" class="progress-bar"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card mood-card">
-        <div class="card-header">
-          <h2>心情与待办</h2>
-          <span class="hint">保存在本机浏览器 · 可导出到手机</span>
-        </div>
-        <div class="form-row">
-          <label class="field">
-            <span>今日心情</span>
-            <input id="moodInput" class="input" placeholder="例如：平静、专注、想睡…" />
-          </label>
-          <label class="field">
-            <span>最重要的一件事</span>
-            <input id="todoInput" class="input" placeholder="例如：写 300 字 / 整理花园笔记…" />
-          </label>
-        </div>
-        <div class="actions">
-          <button class="btn btn-primary sparkle" id="saveMoodTodo" type="button">保存</button>
-          <button class="btn btn-soft sparkle" id="clearMoodTodo" type="button">清空</button>
-          <button class="btn btn-ghost sparkle" id="exportData" type="button" title="导出数据到文件">导出</button>
-          <label class="btn btn-ghost sparkle" for="importFile" title="从文件导入数据" style="cursor:pointer;">导入</label>
-          <input id="importFile" type="file" accept="application/json" style="display:none;">
         </div>
       </section>
 
@@ -137,32 +109,4 @@
           </button>
           <div class="tomato-side">
             <div class="mini-title">已完成</div>
-            <div id="completedTomatoes" class="tomato-done" aria-label="已完成番茄列表"></div>
-          </div>
-        </div>
-      </section>
-
-      <button id="chat-button" class="chat-fab sparkle" type="button" aria-label="打开阿柴小窗">☁️</button>
-      <div id="chat-window" class="chat-window" aria-hidden="true">
-        <div class="chat-header">
-          <div class="chat-title">阿柴 · 小窗</div>
-          <button id="chat-close" class="btn btn-ghost sparkle" type="button">关闭</button>
-        </div>
-        <div class="chat-body" id="chatBody">
-          <div class="chat-bubble bot">小娜，我在。你想先从花园里的哪一块开始？</div>
-        </div>
-        <div class="chat-input">
-          <input id="chatInput" class="input" placeholder="对阿柴说点什么…" />
-          <button id="chatSend" class="btn btn-primary sparkle" type="button">发送</button>
-        </div>
-      </div>
-    </main>
-
-    <footer class="site-footer">
-      <div class="footer-note">小娜花园 · v11 · 主题&天气边框升级</div>
-    </footer>
-  </div>
-
-  <script src="main.js"></script>
-</body>
-</html>
+            <div id="completedTomatoes
