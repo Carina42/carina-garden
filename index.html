@@ -4,19 +4,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>柴窝之家 | 小娜的生活记录</title>
+  <title>柴窝之家 | 读书记录</title>
   <style>
     :root {
+      --bg-light: #f9fdfb;
+      --bg-dark: #2f2f2f;
       --main-color: #a6c8af;
       --accent-color: #f2ebe9;
       --font-color: #333;
-      --bg-color: #f9fdfb;
     }
     body {
       margin: 0;
       font-family: "Hiragino Sans GB", "Helvetica Neue", sans-serif;
-      background-color: var(--bg-color);
+      background-color: var(--bg-light);
       color: var(--font-color);
+      transition: background-color 0.3s ease;
     }
     header {
       background-color: var(--main-color);
@@ -25,85 +27,191 @@
       color: white;
       font-size: 1.8rem;
       font-weight: bold;
-      letter-spacing: 1px;
     }
-    nav {
-      background-color: #ffffffcc;
+    .controls {
+      text-align: center;
+      margin: 1rem;
+    }
+    .controls button {
+      font-size: 1.2rem;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+    }
+    #count {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    .bookshelf {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .shelf-row {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
-      padding: 1rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin: 0.5rem;
     }
-    nav a {
-      text-decoration: none;
-      color: var(--main-color);
-      font-weight: 600;
+    .book {
+      width: 40px;
+      height: 60px;
+      background-color: #d6d6d6;
+      margin: 0 3px;
+      background-size: cover;
+      border-radius: 4px;
     }
-    nav a:hover {
-      text-decoration: underline;
+    .flower {
+      width: 80px;
+      height: 80px;
+      background-image: url('flower.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: bloom 1s ease-out forwards;
+      margin: 1rem auto;
     }
-    .content {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+    @keyframes bloom {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
-    .card {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
+    .dark {
+      background-color: var(--bg-dark);
+      color: white;
     }
-    .card h2 {
-      margin-top: 0;
-      color: var(--main-color);
-    }
-    .quote {
-      font-style: italic;
+    .toggle-theme {
       margin-top: 1rem;
-      color: #666;
+      font-size: 0.9rem;
+      background: none;
+      border: 1px solid var(--main-color);
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+    }
+    table {
+      margin: 0 auto 2rem;
+      border-collapse: collapse;
+      width: 90%;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 0.5rem;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <header>
-    🪴 柴窝之家
-  </header>
-  <nav>
-    <a href="#reading">读书</a>
-    <a href="#exercise">运动</a>
-    <a href="#sleep">睡眠</a>
-    <a href="#notes">笔记</a>
-    <a href="#goals">计划</a>
-  </nav>
-  <div class="content">
-    <div class="card">
-      <h2>📖 今日读书摘要</h2>
-      <p>《到灯塔去》第九章：拉姆齐夫人坐在黄昏的草坪上，仿佛一切都被包裹在玫瑰色之中……</p>
-      <p class="quote">“She had always been fond of flowers.”</p>
+  <header>📚 柴窝之家 · 阅读页</header>
+  <div class="controls">
+    <div>
+      <button onclick="changeCount(-1)">➖</button>
+      <span id="count">0</span>
+      <button onclick="changeCount(1)">➕</button>
     </div>
-    <div class="card">
-      <h2>🏃‍♀️ 今日运动打卡</h2>
-      <p>观鸟步行 1.5 小时｜路线：北龙湖湿地｜拍摄到 4 种水鸟！</p>
-    </div>
-    <div class="card">
-      <h2>😴 睡眠小记</h2>
-      <p>昨晚 23:40 入睡｜今晨 7:30 起床｜睡眠质量：★★★☆☆｜梦见了在花园中奔跑</p>
-    </div>
-    <div class="card">
-      <h2>📝 灵感一则</h2>
-      <p>小说主角“连恕”在冰原上捡到一根闪着幽光的藤枝，也许那是第一条通往旧记忆的线索？</p>
-    </div>
-    <div class="card">
-      <h2>🎯 年度计划速览</h2>
-      <ul>
-        <li>✅ 论文初稿完成（7 月）</li>
-        <li>✅ 成功参会伦敦（7 月）</li>
-        <li>📘 正在推进花园主题论文细纲</li>
-        <li>📙 写作打卡 21/30 天</li>
-      </ul>
-    </div>
+    <button class="toggle-theme" onclick="toggleTheme()">切换主题</button>
   </div>
+
+  <div class="bookshelf" id="bookshelf"></div>
+  <div id="flower-container"></div>
+
+  <table id="bookTable">
+    <thead>
+      <tr><th>书名</th><th>作者</th><th>标签</th><th>读后感</th><th>上传封面</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let count = parseInt(localStorage.getItem("bookCount")) || 0;
+    let covers = JSON.parse(localStorage.getItem("bookCovers") || "[]");
+    const countDisplay = document.getElementById("count");
+    const bookshelf = document.getElementById("bookshelf");
+    const flowerContainer = document.getElementById("flower-container");
+    const table = document.getElementById("bookTable").querySelector("tbody");
+
+    function updateShelf() {
+      bookshelf.innerHTML = "";
+      for (let i = 0; i < Math.ceil(count / 10); i++) {
+        const row = document.createElement("div");
+        row.className = "shelf-row";
+        for (let j = 0; j < 10; j++) {
+          const index = i * 10 + j;
+          if (index >= count) break;
+          const book = document.createElement("div");
+          book.className = "book";
+          if (covers[index]) book.style.backgroundImage = `url('${covers[index]}')`;
+          row.appendChild(book);
+        }
+        bookshelf.appendChild(row);
+      }
+      updateFlowers();
+    }
+
+    function updateFlowers() {
+      flowerContainer.innerHTML = "";
+      const flowerCount = Math.floor(count / 10);
+      for (let i = 0; i < flowerCount; i++) {
+        const flower = document.createElement("div");
+        flower.className = "flower";
+        flowerContainer.appendChild(flower);
+      }
+    }
+
+    function changeCount(delta) {
+      count = Math.max(0, count + delta);
+      countDisplay.textContent = count;
+      localStorage.setItem("bookCount", count);
+      updateShelf();
+      while (table.rows.length < count) addRow();
+      while (table.rows.length > count) table.deleteRow(-1);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
+
+    function handleUpload(index, file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        covers[index] = e.target.result;
+        localStorage.setItem("bookCovers", JSON.stringify(covers));
+        updateShelf();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addRow() {
+      const row = document.createElement("tr");
+      for (let i = 0; i < 4; i++) {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "text";
+        td.appendChild(input);
+        row.appendChild(td);
+      }
+      const tdUpload = document.createElement("td");
+      const inputFile = document.createElement("input");
+      inputFile.type = "file";
+      inputFile.accept = "image/*";
+      inputFile.onchange = (e) => handleUpload(table.rows.length, e.target.files[0]);
+      tdUpload.appendChild(inputFile);
+      row.appendChild(tdUpload);
+      table.appendChild(row);
+    }
+
+    // 初始化
+    countDisplay.textContent = count;
+    updateShelf();
+    for (let i = 0; i < count; i++) addRow();
+  </script>
 </body>
 </html>
