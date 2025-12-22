@@ -1,5 +1,15 @@
-// 小娜花园 · reading.js (v10)
+// 小娜花园 · reading.js (v11)
 const LS_KEY = "xn_garden_reading_books_v1";
+
+const themes = [
+  { id:"fern",  name:"蕨绿", a:"#8aa39a", b:"#cbbfae", c:"#a7b3c1"},
+  { id:"moss",  name:"苔影", a:"#7f9a90", b:"#c7bfb1", c:"#9fb0a5"},
+  { id:"clay",  name:"陶土", a:"#a07f73", b:"#cbbfae", c:"#a9b1b9"},
+  { id:"mist",  name:"雾蓝", a:"#8fa2b6", b:"#d0c2b4", c:"#a3a9be"},
+  { id:"rose",  name:"蔷薇", a:"#b78f92", b:"#d6cbbd", c:"#9aa8a1"},
+  { id:"wheat", name:"麦穗", a:"#a29b7d", b:"#d6cbbd", c:"#8fa2b6"},
+  { id:"ink",   name:"墨青", a:"#6f7d86", b:"#cbbfae", c:"#97a7b3"},
+];
 
 const els = {
   count: document.getElementById("book-count"),
@@ -18,11 +28,71 @@ const els = {
   navMoreMenu: document.getElementById("navMoreMenu"),
 };
 
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+// Theme modal helpers (same ids as index)
+function applyTheme(themeId){
+  document.body.dataset.theme = themeId;
+  localStorage.setItem("xn_theme", themeId);
+}
+function applyNight(isNight){
+  document.body.classList.toggle("night", !!isNight);
+  localStorage.setItem("xn_night", isNight ? "1" : "0");
+}
+function buildThemeGrid(){
+  const grid = document.getElementById("themeGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  themes.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "theme-card sparkle";
+    card.innerHTML = `
+      <div class="swatches">
+        <div class="sw" style="background:${t.a}"></div>
+        <div class="sw" style="background:${t.b}"></div>
+        <div class="sw" style="background:${t.c}"></div>
+      </div>
+      <div class="theme-name">${t.name}</div>
+    `;
+    card.addEventListener("click", () => { applyTheme(t.id); burstAt(card, 12); closeThemeModal(); });
+    grid.appendChild(card);
+  });
+}
+function openThemeModal(){
+  const m = document.getElementById("themeModal");
+  if (!m) return;
+  m.style.display = "block";
+  m.setAttribute("aria-hidden","false");
+}
+function closeThemeModal(){
+  const m = document.getElementById("themeModal");
+  if (!m) return;
+  m.style.display = "none";
+  m.setAttribute("aria-hidden","true");
+}
+function setupThemeModal(){
+  buildThemeGrid();
+  document.getElementById("themeBtn")?.addEventListener("click", (e) => { openThemeModal(); spawnPetalsAt(e.clientX, e.clientY, 10); });
+  document.getElementById("closeTheme")?.addEventListener("click", closeThemeModal);
+  document.getElementById("themeBackdrop")?.addEventListener("click", closeThemeModal);
+  document.getElementById("toggleNight")?.addEventListener("click", (e) => {
+    const next = !document.body.classList.contains("night");
+    applyNight(next);
+    spawnPetalsAt(e.clientX, e.clientY, 10);
+  });
+
+  const savedTheme = localStorage.getItem("xn_theme") || "fern";
+  applyTheme(savedTheme);
+  const savedNight = localStorage.getItem("xn_night") === "1";
+  applyNight(savedNight);
+}
+
 function loadBooks(){
   try{ return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }catch(e){ return []; }
 }
 function saveBooks(books){ localStorage.setItem(LS_KEY, JSON.stringify(books)); }
 
+// Petals
 function spawnPetalsAt(x, y, n = 12){
   for (let i=0;i<n;i++){
     const p = document.createElement("span");
@@ -151,6 +221,58 @@ async function fileToDataUrl(file){
   });
 }
 
+// Weather layer (same as index)
+function clearWeatherLayer(){
+  const layer = document.getElementById("weatherLayer");
+  if (!layer) return;
+  layer.innerHTML = "";
+}
+function renderWeatherLayer(kind){
+  const layer = document.getElementById("weatherLayer");
+  if (!layer) return;
+  layer.innerHTML = "";
+
+  if (kind === "rain"){
+    const w = window.innerWidth;
+    const leftStrip = 140;
+    const rightStripStart = w - 140;
+    const makeDrop = (xMin, xMax) => {
+      const d = document.createElement("div");
+      d.className = "raindrop";
+      const x = xMin + Math.random()*(xMax-xMin);
+      const top = -Math.random()*400;
+      const dur = 1.2 + Math.random()*1.2;
+      const delay = Math.random()*1.6;
+      d.style.left = x + "px";
+      d.style.top = top + "px";
+      d.style.animationDuration = dur + "s";
+      d.style.animationDelay = delay + "s";
+      d.style.opacity = String(0.55 + Math.random()*0.35);
+      d.style.height = (14 + Math.random()*26) + "px";
+      layer.appendChild(d);
+    };
+    for (let i=0;i<52;i++){
+      if (Math.random() < 0.5) makeDrop(0, leftStrip);
+      else makeDrop(rightStripStart, w);
+    }
+    for (let i=0;i<12;i++){
+      const d = document.createElement("div");
+      d.className = "raindrop";
+      d.style.left = (Math.random()*w) + "px";
+      d.style.top = (-Math.random()*160) + "px";
+      d.style.animationDuration = (1.1 + Math.random()*1.3) + "s";
+      d.style.animationDelay = (Math.random()*1.2) + "s";
+      d.style.opacity = String(0.35 + Math.random()*0.25);
+      d.style.height = (10 + Math.random()*18) + "px";
+      layer.appendChild(d);
+    }
+  } else if (kind === "sun"){
+    const s = document.createElement("div");
+    s.className = "sunlight";
+    layer.appendChild(s);
+  }
+}
+
 async function initWeather(){
   const pill = els.weatherPill;
   const setText = (t) => { if (pill) pill.textContent = t; };
@@ -178,9 +300,11 @@ async function initWeather(){
     const wt = codeToText(code);
     setText(`天气：${place} · ${typeof t === "number" ? t.toFixed(0)+"°C" : "--"} · ${wt.label}`);
     document.body.dataset.weather = wt.kind;
+    renderWeatherLayer(wt.kind);
   }catch(_){
     setText(`天气：${place} · 暂不可用`);
     document.body.dataset.weather = "unknown";
+    clearWeatherLayer();
   }
 }
 function codeToText(code){
@@ -194,10 +318,34 @@ function codeToText(code){
   return {label:"天气", kind:"unknown"};
 }
 
+// Mobile nav more (same strategy: clone hidden links)
 function setupNavMore(){
   const btn = els.navMoreBtn;
   const menu = els.navMoreMenu;
   if (!btn || !menu) return;
+
+  const rebuildMenu = () => {
+    menu.innerHTML = "";
+    const hiddenLinks = Array.from(document.querySelectorAll('.top-nav a[data-mobile="hide"]'));
+    hiddenLinks.forEach(a => {
+      const clone = a.cloneNode(true);
+      clone.setAttribute("role","menuitem");
+      menu.appendChild(clone);
+    });
+  };
+  rebuildMenu();
+
+  const shouldShow = () => window.matchMedia("(max-width: 640px)").matches;
+  const syncVisibility = () => {
+    btn.style.display = shouldShow() ? "inline-flex" : "none";
+    if (!shouldShow()){
+      menu.style.display = "none";
+      menu.setAttribute("aria-hidden","true");
+    }
+  };
+  syncVisibility();
+  window.addEventListener("resize", syncVisibility);
+
   const toggle = () => {
     const show = menu.style.display !== "block";
     menu.style.display = show ? "block" : "none";
@@ -210,7 +358,17 @@ function setupNavMore(){
   });
 }
 
+// PWA
+function setupPWA(){
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
 function setup(){
+  setupThemeModal();
+  setupNavMore();
+  setupPWA();
+
   els.add?.addEventListener("click", (e) => {
     const books = loadBooks();
     books.push({ title:"未命名", cover:"", note:"" });
@@ -250,7 +408,6 @@ function setup(){
   });
 
   render();
-  setupNavMore();
   initWeather();
 }
 
