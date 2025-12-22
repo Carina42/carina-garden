@@ -1,47 +1,52 @@
+let count = parseInt(localStorage.getItem("bookCount")||"0");
+const shelf = document.getElementById("book-shelf");
+const tableBody = document.getElementById("reading-table-body");
+document.getElementById("book-count").innerText = count;
 
-let count = 0;
-
-function updateCount() {
-  document.getElementById("book-count").innerText = count;
-  if (count > 0) {
-    document.getElementById("flower-display").innerText = "🌸 花儿开啦！";
-  } else {
-    document.getElementById("flower-display").innerText = "未开花";
+function renderShelf() {
+  shelf.innerHTML = "";
+  for (let i=0; i<count; i++){
+    const slot = document.createElement("div");
+    slot.className = "book-slot";
+    shelf.appendChild(slot);
   }
 }
 
 document.getElementById("add-book").onclick = () => {
   count++;
-  updateCount();
+  localStorage.setItem("bookCount", count);
+  document.getElementById("book-count").innerText = count;
+  renderShelf();
 };
 
 document.getElementById("remove-book").onclick = () => {
-  if (count > 0) count--;
-  updateCount();
+  if (count>0) {
+    count--;
+    localStorage.setItem("bookCount", count);
+    document.getElementById("book-count").innerText = count;
+    renderShelf();
+  }
 };
 
 document.getElementById("upload-book").onclick = () => {
   const title = document.getElementById("book-title").value;
   const file = document.getElementById("book-cover").files[0];
-  if (!title || !file) return alert("请填写书名并上传封面");
+  if(!title || !file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
-    // 封面图显示在书架
+  reader.onload = e => {
     const img = document.createElement("img");
     img.src = e.target.result;
     const slot = document.createElement("div");
     slot.className = "book-slot";
     slot.appendChild(img);
-    document.getElementById("bookshelf-container").appendChild(slot);
+    shelf.appendChild(slot);
 
-    // 表格同步
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${title}</td><td><img src="${e.target.result}" height="60"/></td><td></td>`;
-    document.getElementById("reading-table-body").appendChild(row);
-
-    count++;
-    updateCount();
+    row.innerHTML = `<td>${title}</td><td><img src="${e.target.result}" width="50"></td><td></td>`;
+    tableBody.appendChild(row);
   };
   reader.readAsDataURL(file);
 };
+
+renderShelf();
