@@ -1,78 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>柴窝之家 · Sleep</title>
+  <title>柴窝之家 · 睡眠</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="chatbot.css" />
+  <script defer src="themeSwitch.js"></script>
+  <script defer src="sleep.js"></script>
+  <script defer src="chatbot.js"></script>
 </head>
-<body class="theme-default">
-  <div class="border-layer"><div class="weather-fx"></div></div>
-  <div class="shell">
-    <div class="app">
-      <div class="topbar">
-        <div class="brand">
-          <h1>Sleep</h1>
-          <div class="sub">早睡早起 · 气血充足 · 温柔复原</div>
-        </div>
-        <div class="nav">
-          <a href="index.html">🏠 Home</a>
-          <a href="reading.html">📚 Reading</a>
-          <a href="writing.html">✍️ Writing</a>
-          <a href="sleep.html">🌙 Sleep</a>
-          <a href="exercise.html">🏃 Exercise</a>
-          <a href="todo.html">✅ ToDo</a>
-        </div>
-        <div class="theme-switch">
-          <div class="pill" role="group" aria-label="主题切换">
-            <button class="theme-btn" data-theme="theme-default" aria-pressed="true" title="清叶">🌿</button>
-            <button class="theme-btn" data-theme="theme-moss" aria-pressed="false" title="青苔">🫧</button>
-            <button class="theme-btn" data-theme="theme-sun" aria-pressed="false" title="暖阳">🌞</button>
-            <button class="theme-btn" data-theme="theme-night" aria-pressed="false" title="夜色">🌙</button>
-          </div>
+<body class="theme-leaf">
+  <div class="border-frame" aria-hidden="true">
+    <div class="border-pattern"></div>
+    <div class="weather-ornaments" id="weatherOrnaments" aria-hidden="true"></div>
+  </div>
+  <div class="page">
+    <nav class="top-nav">
+  <a href="index.html" class="nav-item" data-nav="home">🏡 首页</a>
+  <a href="reading.html" class="nav-item" data-nav="reading">📚 阅读</a>
+  <a href="writing.html" class="nav-item" data-nav="writing">✍️ 写作</a>
+  <a href="sleep.html" class="nav-item" data-nav="sleep">🌙 睡眠</a>
+  <a href="exercise.html" class="nav-item" data-nav="exercise">🏃 运动</a>
+  <a href="todo.html" class="nav-item" data-nav="todo">📋 待办</a>
+  <a href="goals.html" class="nav-item" data-nav="goals">🎯 目标</a>
+  <div class="nav-spacer"></div>
+  <button id="themeToggle" class="chip-btn" title="切换主题">🌿 主题</button>
+</nav>
+    <header class="hero">
+      <div class="hero-left">
+        <h1 class="title">睡眠</h1>
+        <p class="subtitle">把身体养回来：温柔但有数据。</p>
+      </div>
+      <div class="hero-right">
+        <div class="card compact">
+          <div class="card-title">小提示</div>
+          <div class="hint">这些页面都是真正可用的小工具（本地保存），不是空壳占位。</div>
         </div>
       </div>
-
-      <div class="simple-grid">
-        
-<section class="card">
-  <h2>🌙 睡眠记录</h2>
-  <div class="small">记录昨夜睡了多久。会显示 7 日平均。</div>
-  <div class="events">
-    <div class="form">
-      <input id="sHours" type="number" min="0" step="0.1" placeholder="睡眠小时（例如：7.5）" />
-      <input id="sNote" placeholder="备注（可选：早睡/熬夜/做梦…）" />
-      <button class="btn primary" id="sSave">保存</button>
-    </div>
-    <div class="kv">
-      <div class="row"><div class="k">昨夜睡眠</div><div class="v" id="sToday">—</div></div>
-      <div class="row"><div class="k">近7日平均</div><div class="v" id="sAvg">—</div></div>
-    </div>
-    <div class="list" id="sList"></div>
+    </header>
+    <main class="grid">
+      
+<section class="card span-2">
+  <div class="card-title">🌙 睡眠记录</div>
+  <div class="row">
+    <input class="input" id="sDate" type="date" />
+    <input class="input" id="sHours" type="number" min="0" step="0.25" placeholder="睡眠小时（例如：7.5）" />
+    <button class="btn" id="sSave">保存</button>
   </div>
+  <div class="divider"></div>
+  <div class="mini-title">最近 7 次</div>
+  <div id="sList" class="kv-list"></div>
 </section>
 
-      </div>
-    </div>
+    </main>
+    <footer class="footer"><span class="muted">柴窝之家 · 睡眠页</span></footer>
   </div>
 
-  <div id="chai-fab" title="柴柴助理">☁️</div>
-  <div id="chai-chat" aria-label="柴柴助理对话窗">
-    <div class="head">
-      <div class="title">柴柴助理 · 阿柴</div>
-      <button class="close" title="关闭">×</button>
+  <button id="toggle-chatbot" class="floating-chat" aria-label="打开柴柴助理">☁️</button>
+  <div id="chatbot-box" class="chatbox" role="dialog" aria-label="柴柴助理聊天窗">
+    <div id="chatbot-header" class="chatbox-header">
+      <span>柴柴助理</span>
+      <button id="close-chatbot" class="chatbox-close" aria-label="关闭">×</button>
     </div>
-    <div class="log"></div>
-    <div class="composer">
-      <input placeholder="随时戳阿柴…（回车发送）" />
-      <button class="btn primary send">发送</button>
+    <div id="chat-area" class="chatbox-area"></div>
+    <div id="user-input-container" class="chatbox-input">
+      <input id="user-input" class="input" placeholder="我在呢…" />
+      <button id="send-btn" class="btn">发送</button>
     </div>
+    <div class="chatbox-footnote"><span class="muted">需要 /api/chat + OPENAI_API_KEY。</span></div>
   </div>
-
-  <script src="themeSwitch.js"></script>
-  <script src="weather.js"></script>
-  <script src="sleep.js"></script>
-  <script src="chatbot.js"></script>
 </body>
 </html>

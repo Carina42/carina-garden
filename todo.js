@@ -1,90 +1,130 @@
 
 (function(){
-  const KEY="chaiTodos";
-  const pad2=n=>String(n).padStart(2,"0");
-  const dayKey=()=>{
-    const d=new Date();
-    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  };
-  const read=()=>{ try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch{return[];} };
-  const write=(a)=>localStorage.setItem(KEY, JSON.stringify(a));
+  const KEY = "chai_todo_v6";
+  const $ = (id)=>document.getElementById(id);
 
-  const text=$("#tText");
-  const due=$("#tDue");
-  const add=$("#tAdd");
-  const list=$("#tList");
+  function read(){
+    try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }catch(_){ return []; }
+  }
+  function save(list){
+    localStorage.setItem(KEY, JSON.stringify(list));
+  }
+  function today(){ return new Date().toISOString().slice(0,10); }
 
-  function $(s){ return document.querySelector(s); }
+  function norm(s){ return (s||"").trim(); }
 
   function render(){
-    const arr=read();
-    // sort: undone first, then due
-    arr.sort((a,b)=>{
-      if(!!a.done !== !!b.done) return a.done? 1 : -1;
-      return (a.due||"").localeCompare(b.due||"");
-    });
-    write(arr);
-    list.innerHTML="";
-    if(arr.length===0){
-      const div=document.createElement("div");
-      div.className="small";
-      div.textContent="还没有待办。写一条最重要的就够。";
-      list.appendChild(div);
+    const listEl = $("tList");
+    const topEl = $("tTop");
+    if(!listEl || !topEl) return;
+    const list = read();
+
+    // top priority: those with ! prefix and not done, else first not done
+    const open = list.filter(x=>!x.done);
+    const prio = open.find(x=>x.prio) || open[0];
+    topEl.textContent = prio ? prio.text : "——";
+
+    // also sync homepage "top todo"
+    if(prio) localStorage.setItem("chai_top_todo_v6", prio.text);
+
+    listEl.innerHTML = "";
+    if(list.length===0){
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = "还没有待办。写一个小任务开始吧。";
+      listEl.appendChild(empty);
       return;
     }
-    arr.forEach((t,i)=>{
-      const div=document.createElement("div");
-      div.className="item";
-      div.innerHTML = `
-        <div class="left">
-          <div class="t">${escapeHtml(t.text)}</div>
-          <div class="m">${t.due? ("截止："+t.due):""}</div>
-        </div>
-        <div class="right">
-          <button class="btn" data-done="${i}">${t.done?"已完成":"完成"}</button>
-          <button class="btn danger" data-del="${i}">删除</button>
-        </div>`;
-      list.appendChild(div);
-    });
 
-    list.querySelectorAll("button[data-done]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const i=parseInt(btn.dataset.done,10);
-        const arr=read();
-        arr[i].done = !arr[i].done;
-        write(arr);
+    list.forEach((it, idx)=>{
+      const row = document.createElement("div");
+      row.className = "todo-item";
+      const left = document.createElement("div");
+      left.className = "todo-left";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!it.done;
+      cb.addEventListener("change", ()=>{
+        const list2 = read();
+        list2[idx].done = cb.checked;
+        save(list2);
         render();
       });
-    });
-    list.querySelectorAll("button[data-del]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const i=parseInt(btn.dataset.del,10);
-        const arr=read();
-        arr.splice(i,1);
-        write(arr);
+
+      const text = document.createElement("div");
+      text.className = "todo-text";
+      text.textContent = it.text;
+
+      const meta = document.createElement("div");
+      meta.className = "todo-meta";
+      meta.textContent = `${it.prio ? "优先" : "普通"} · ${it.date || ""}`;
+
+      left.appendChild(cb);
+      const stack = document.createElement("div");
+      stack.style.display = "flex";
+      stack.style.flexDirection = "column";
+      stack.appendChild(text);
+      stack.appendChild(meta);
+      left.appendChild(stack);
+
+      const actions = document.createElement("div");
+      actions.className = "todo-actions";
+      const up = document.createElement("button");
+      up.className = "todo-btn";
+      up.textContent = "⬆️";
+      up.title = "上移";
+      up.addEventListener("click", ()=>{
+        if(idx===0) return;
+        const list2 = read();
+        const tmp = list2[idx-1];
+        list2[idx-1] = list2[idx];
+        list2[idx] = tmp;
+        save(list2);
         render();
       });
+
+      const del = document.createElement("button");
+      del.className = "todo-btn";
+      del.textContent = "🗑️";
+      del.title = "删除";
+      del.addEventListener("click", ()=>{
+        const list2 = read().filter((_,i)=>i!==idx);
+        save(list2);
+        render();
+      });
+
+      actions.appendChild(up);
+      actions.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(actions);
+      listEl.appendChild(row);
     });
   }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, (c)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  add.addEventListener("click", ()=>{
-    const v=(text.value||"").trim();
-    if(!v) return;
-    const arr=read();
-    arr.push({ text:v, due:(due.value||""), done:false, createdAt:new Date().toISOString() });
-    write(arr);
-    text.value="";
-    render();
-  });
 
   document.addEventListener("DOMContentLoaded", ()=>{
-    due.value = dayKey();
+    $("tAdd")?.addEventListener("click", ()=>{
+      const textRaw = norm($("tText")?.value);
+      if(!textRaw) return;
+      const prio = textRaw.startsWith("!");
+      const text = prio ? textRaw.slice(1).trim() : textRaw;
+      const list = read();
+      list.unshift({text, prio, done:false, date: today(), id: Math.random().toString(36).slice(2)});
+      save(list);
+      $("tText").value = "";
+      render();
+    });
+
+    $("tClearDone")?.addEventListener("click", ()=>{
+      const list = read().filter(x=>!x.done);
+      save(list);
+      render();
+    });
+    $("tClearAll")?.addEventListener("click", ()=>{
+      save([]);
+      render();
+    });
+
     render();
   });
 })();

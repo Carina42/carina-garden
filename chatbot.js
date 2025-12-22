@@ -1,104 +1,82 @@
 
 (function(){
-  const LS_KEY = "chaiChatHistory";
+  const $ = (id)=>document.getElementById(id);
 
-  function nowTime(){
-    const d = new Date();
-    return d.toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"});
-  }
+  function ensure(){
+    const btn = $("toggle-chatbot");
+    const box = $("chatbot-box");
+    const close = $("close-chatbot");
+    const send = $("send-btn");
+    const input = $("user-input");
+    const area = $("chat-area");
+    if(!btn || !box || !close || !send || !input || !area) return null;
 
-  function loadHistory(){
-    try{ return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }catch{ return []; }
-  }
-  function saveHistory(arr){
-    localStorage.setItem(LS_KEY, JSON.stringify(arr.slice(-30)));
-  }
+    function open(){ box.classList.add("show"); }
+    function hide(){ box.classList.remove("show"); }
 
-  function el(tag, cls, text){
-    const e = document.createElement(tag);
-    if(cls) e.className = cls;
-    if(text!==undefined) e.textContent = text;
-    return e;
-  }
+    btn.addEventListener("click", open);
+    close.addEventListener("click", hide);
 
-  async function sendToServer(message, history){
-    // Calls Vercel serverless function at /api/chai
-    const resp = await fetch("/api/chai",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ message, history })
+    input.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        send.click();
+      }
     });
-    if(!resp.ok){
-      const t = await resp.text();
-      throw new Error(t || ("HTTP " + resp.status));
+
+    function append(role, text){
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + (role==="user" ? "user" : "assistant");
+      const bub = document.createElement("div");
+      bub.className = "bubble";
+      bub.textContent = text;
+      wrap.appendChild(bub);
+      area.appendChild(wrap);
+      area.scrollTop = area.scrollHeight;
     }
-    const data = await resp.json();
-    return data.reply || "（阿柴暂时没接上…）";
-  }
 
-  function append(log, who, text){
-    const box = el("div", "msg " + (who==="me"?"me":"bot"));
-    const meta = el("div","meta", (who==="me"?"你":"阿柴") + " · " + nowTime());
-    const body = el("div", null, text);
-    box.appendChild(meta);
-    box.appendChild(body);
-    log.appendChild(box);
-    log.scrollTop = log.scrollHeight;
-  }
-
-  function mount(){
-    const fab = document.getElementById("chai-fab");
-    const panel = document.getElementById("chai-chat");
-    if(!fab || !panel) return;
-
-    const closeBtn = panel.querySelector(".close");
-    const log = panel.querySelector(".log");
-    const input = panel.querySelector("input");
-    const sendBtn = panel.querySelector("button.send");
-
-    // hydrate
-    const history = loadHistory();
-    history.forEach(m => append(log, m.role==="user" ? "me":"bot", m.content));
-
-    function open(){ panel.classList.add("open"); input.focus(); }
-    function close(){ panel.classList.remove("open"); }
-    fab.addEventListener("click", ()=> panel.classList.contains("open")? close(): open());
-    closeBtn.addEventListener("click", close);
-
-    async function doSend(){
+    async function sendMsg(){
       const msg = (input.value || "").trim();
       if(!msg) return;
       input.value = "";
-      append(log,"me",msg);
+      append("user", msg);
 
-      const hist = loadHistory();
-      const newHist = hist.concat([{role:"user",content:msg}]);
-      saveHistory(newHist);
-
-      sendBtn.disabled = true;
-      sendBtn.textContent = "发送中…";
+      const thinking = document.createElement("div");
+      thinking.className = "msg assistant";
+      const bub = document.createElement("div");
+      bub.className = "bubble";
+      bub.textContent = "……（柴柴在思考）";
+      thinking.appendChild(bub);
+      area.appendChild(thinking);
+      area.scrollTop = area.scrollHeight;
 
       try{
-        const reply = await sendToServer(msg, newHist);
-        append(log,"bot",reply);
-        const hist2 = loadHistory().concat([{role:"assistant",content:reply}]);
-        saveHistory(hist2);
+        const res = await fetch("/api/chat", {
+          method:"POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({message: msg})
+        });
+
+        if(!res.ok){
+          const t = await res.text();
+          throw new Error("api_error:" + t);
+        }
+        const data = await res.json();
+        bub.textContent = data.reply || "（没有收到回复）";
       }catch(err){
-        append(log,"bot","（发送失败）" + (err?.message || "网络或服务异常"));
-      }finally{
-        sendBtn.disabled = false;
-        sendBtn.textContent = "发送";
+        bub.textContent = "聊天暂时不可用：需要在 Vercel 部署 /api/chat，并设置 OPENAI_API_KEY 环境变量。";
       }
     }
 
-    sendBtn.addEventListener("click", doSend);
-    input.addEventListener("keydown",(e)=>{
-      if(e.key==="Enter" && !e.shiftKey){
-        e.preventDefault();
-        doSend();
-      }
-    });
+    send.addEventListener("click", sendMsg);
+
+    // greeting once
+    if(!area.dataset.greeted){
+      area.dataset.greeted = "1";
+      append("assistant", "嗨小娜，我在。今天要在柴窝里做点什么？（读书/写作/花园/生活都可以）");
+    }
+    return {open, hide, append};
   }
 
-  document.addEventListener("DOMContentLoaded", mount);
+  document.addEventListener("DOMContentLoaded", ensure);
 })();

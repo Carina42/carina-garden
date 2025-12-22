@@ -1,26 +1,44 @@
-
 (function(){
-  const THEMES = ["theme-moss","theme-sun","theme-night","theme-default"];
-  const DEFAULT = "theme-default";
-  const key = "chaiTheme";
+  const THEMES = ["theme-leaf","theme-moss","theme-sun","theme-night"];
+  const KEY = "chai_theme_v6";
 
-  function setTheme(name){
+  function applyTheme(cls){
     document.body.classList.remove(...THEMES);
-    document.body.classList.add(name);
-    localStorage.setItem(key, name);
-    // update aria-pressed
-    document.querySelectorAll("[data-theme]").forEach(btn=>{
-      btn.setAttribute("aria-pressed", btn.dataset.theme===name ? "true":"false");
-    });
+    document.body.classList.add(cls);
+    try{ localStorage.setItem(KEY, cls); }catch(_){}
   }
 
-  window.ChaiTheme = { setTheme };
+  function nextTheme(){
+    const current = THEMES.find(t => document.body.classList.contains(t)) || THEMES[0];
+    const idx = THEMES.indexOf(current);
+    const next = THEMES[(idx+1) % THEMES.length];
+    applyTheme(next);
+  }
 
-  document.addEventListener("DOMContentLoaded", ()=>{
-    const saved = localStorage.getItem(key) || DEFAULT;
-    setTheme(saved);
-    document.querySelectorAll("[data-theme]").forEach(btn=>{
-      btn.addEventListener("click", ()=> setTheme(btn.dataset.theme));
+  document.addEventListener("DOMContentLoaded", () => {
+    // restore
+    try{
+      const saved = localStorage.getItem(KEY);
+      if(saved && THEMES.includes(saved)) applyTheme(saved);
+    }catch(_){}
+
+    // highlight current nav
+    const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    const map = {
+      "index.html":"home","reading.html":"reading","writing.html":"writing",
+      "sleep.html":"sleep","exercise.html":"exercise","todo.html":"todo","goals.html":"goals"
+    };
+    const key = map[path];
+    document.querySelectorAll(".nav-item").forEach(a=>{
+      if(a.dataset.nav === key) a.classList.add("active");
     });
+
+    const btn = document.getElementById("themeToggle");
+    if(btn){
+      btn.addEventListener("click", nextTheme);
+    }
   });
+
+  // expose for debugging
+  window.__chaiTheme = { applyTheme, nextTheme };
 })();

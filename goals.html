@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>柴窝之家 · 运动</title>
+  <title>柴窝之家 · 目标追踪</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="chatbot.css" />
   <script defer src="themeSwitch.js"></script>
-  <script defer src="exercise.js"></script>
+  <script defer src="goals.js"></script>
   <script defer src="chatbot.js"></script>
 </head>
 <body class="theme-leaf">
@@ -29,8 +29,8 @@
 </nav>
     <header class="hero">
       <div class="hero-left">
-        <h1 class="title">运动</h1>
-        <p class="subtitle">把呼吸带回身体里：一点点就很好。</p>
+        <h1 class="title">目标追踪</h1>
+        <p class="subtitle">把一年拆成可触摸的小块：看见进度，就会更安心。</p>
       </div>
       <div class="hero-right">
         <div class="card compact">
@@ -42,22 +42,26 @@
     <main class="grid">
       
 <section class="card span-2">
-  <div class="card-title">🏃 运动记录</div>
-  <div class="row">
-    <input class="input" id="eDate" type="date" />
-    <input class="input" id="eWhat" placeholder="运动类型（散步/瑜伽/跑步/力量…）" />
-    <input class="input" id="eMin" type="number" min="0" step="5" placeholder="分钟（例如：30）" />
-    <button class="btn" id="eSave">保存</button>
+  <div class="card-title">🎯 年度目标面板</div>
+  <div class="progress-block">
+    <div class="progress-head">
+      <span>今年还剩</span>
+      <span class="mono" id="gDaysLeft">—</span>
+    </div>
+    <div class="progress-rail">
+      <div class="progress-fill" id="gYearFill"></div>
+    </div>
   </div>
   <div class="divider"></div>
-  <div class="mini-title">本周累计（分钟）</div>
-  <div class="big-num" id="eWeekTotal">0</div>
-  <div class="mini-title mt">最近 10 条</div>
-  <div id="eList" class="kv-list"></div>
+  <div class="row">
+    <input class="input" id="gText" placeholder="新增一个目标（比如：论文细纲/早睡早起/观鸟）" />
+    <button class="btn" id="gAdd">添加</button>
+  </div>
+  <div id="gList" class="todo-list"></div>
 </section>
 
     </main>
-    <footer class="footer"><span class="muted">柴窝之家 · 运动页</span></footer>
+    <footer class="footer"><span class="muted">柴窝之家 · 目标追踪页</span></footer>
   </div>
 
   <button id="toggle-chatbot" class="floating-chat" aria-label="打开柴柴助理">☁️</button>

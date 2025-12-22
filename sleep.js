@@ -1,61 +1,54 @@
 
 (function(){
-  const KEY="chaiSleep";
-  const pad2=n=>String(n).padStart(2,"0");
-  const dayKey=(d=new Date())=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  const read=()=>{ try{return JSON.parse(localStorage.getItem(KEY)||"{}");}catch{return{};} };
-  const write=(o)=>localStorage.setItem(KEY, JSON.stringify(o));
+  const KEY = "chai_sleep_v6";
+  const $ = (id)=>document.getElementById(id);
 
-  const hours=$("#sHours");
-  const note=$("#sNote");
-  const save=$("#sSave");
-  const today=$("#sToday");
-  const avg=$("#sAvg");
-  const list=$("#sList");
+  function read(){ try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }catch(_){ return []; } }
+  function save(list){ localStorage.setItem(KEY, JSON.stringify(list)); }
+  function today(){ return new Date().toISOString().slice(0,10); }
 
-  function $(s){ return document.querySelector(s); }
-
-  function update(){
-    const obj=read();
-    const dk=dayKey();
-    const h = obj[dk]?.hours;
-    today.textContent = (h!==undefined) ? `${h}h` : "—";
-
-    const arr=[];
-    for(let i=0;i<7;i++){
-      const d=new Date(); d.setDate(d.getDate()-i);
-      const k=dayKey(d);
-      const v=obj[k];
-      if(v && typeof v.hours==="number") arr.push(v.hours);
+  function render(){
+    const listEl = $("sList");
+    if(!listEl) return;
+    const list = read().slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"")).slice(0,7);
+    listEl.innerHTML = "";
+    if(list.length===0){
+      const e = document.createElement("div");
+      e.className = "hint";
+      e.textContent = "还没有记录。先从今天开始：写一个小时数。";
+      listEl.appendChild(e);
+      return;
     }
-    const av = arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : "—";
-    avg.textContent = arr.length ? `${av}h` : "—";
+    list.forEach(it=>{
+      const row = document.createElement("div");
+      row.className = "kv";
+      row.innerHTML = `<span class="mono">${it.date}</span><b>${Number(it.hours||0).toFixed(2)} h</b>`;
+      listEl.appendChild(row);
+    });
 
-    list.innerHTML="";
-    for(let i=0;i<10;i++){
-      const d=new Date(); d.setDate(d.getDate()-i);
-      const k=dayKey(d);
-      const v=obj[k];
-      const div=document.createElement("div");
-      div.className="item";
-      div.innerHTML = `<div class="left"><div class="t">${k}</div><div class="m">${v?.note? v.note:""}</div></div><div class="v">${(v && typeof v.hours==="number")? (v.hours+"h"):"—"}</div>`;
-      list.appendChild(div);
+    // sync homepage summary: store today's hours
+    const t = today();
+    const todayRec = read().find(x=>x.date===t);
+    if(todayRec){
+      // stored in main.js via chai_sleep_v6 already
     }
   }
 
-  save.addEventListener("click", ()=>{
-    const dk=dayKey();
-    const obj=read();
-    obj[dk]=obj[dk]||{};
-    const val=parseFloat(hours.value||"");
-    if(isNaN(val) || val<0){ alert("请输入正确的小时数"); return; }
-    obj[dk].hours = Math.round(val*10)/10;
-    obj[dk].note = (note.value||"").trim();
-    write(obj);
-    hours.value="";
-    note.value="";
-    update();
-  });
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const d = $("sDate");
+    if(d) d.value = today();
 
-  document.addEventListener("DOMContentLoaded", update);
+    $("sSave")?.addEventListener("click", ()=>{
+      const date = ($("sDate")?.value || today()).trim();
+      const hours = Number(($("sHours")?.value || "0"));
+      const list = read();
+      const idx = list.findIndex(x=>x.date===date);
+      if(idx>=0) list[idx] = {date, hours};
+      else list.push({date, hours});
+      save(list);
+      render();
+    });
+
+    render();
+  });
 })();

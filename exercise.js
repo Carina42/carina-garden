@@ -1,56 +1,66 @@
 
 (function(){
-  const KEY="chaiExercise";
-  const pad2=n=>String(n).padStart(2,"0");
-  const dayKey=(d=new Date())=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  const read=()=>{ try{return JSON.parse(localStorage.getItem(KEY)||"{}");}catch{return{};} };
-  const write=(o)=>localStorage.setItem(KEY, JSON.stringify(o));
+  const KEY = "chai_exercise_v6";
+  const $ = (id)=>document.getElementById(id);
 
-  const mins=$("#eMin");
-  const type=$("#eType");
-  const save=$("#eSave");
-  const today=$("#eToday");
-  const week=$("#eWeek");
-  const list=$("#eList");
+  function read(){ try{ return JSON.parse(localStorage.getItem(KEY) || "[]"); }catch(_){ return []; } }
+  function save(list){ localStorage.setItem(KEY, JSON.stringify(list)); }
+  function today(){ return new Date().toISOString().slice(0,10); }
 
-  function $(s){ return document.querySelector(s); }
-
-  function update(){
-    const obj=read();
-    const dk=dayKey();
-    const v=obj[dk];
-    today.textContent = v ? `${v.minutes}min · ${v.type||""}` : "—";
-
-    let sum=0;
-    for(let i=0;i<7;i++){
-      const d=new Date(); d.setDate(d.getDate()-i);
-      const k=dayKey(d);
-      if(obj[k]?.minutes) sum += obj[k].minutes;
-    }
-    week.textContent = `${sum}min`;
-
-    list.innerHTML="";
-    for(let i=0;i<10;i++){
-      const d=new Date(); d.setDate(d.getDate()-i);
-      const k=dayKey(d);
-      const v=obj[k];
-      const div=document.createElement("div");
-      div.className="item";
-      div.innerHTML = `<div class="left"><div class="t">${k}</div><div class="m">${v?.type? v.type:""}</div></div><div class="v">${(v?.minutes!==undefined)? (v.minutes+"min"):"—"}</div>`;
-      list.appendChild(div);
-    }
+  function weekStart(d){
+    const dt = new Date(d+"T00:00:00");
+    const day = (dt.getDay()+6)%7; // Mon=0
+    dt.setDate(dt.getDate() - day);
+    return dt.toISOString().slice(0,10);
   }
 
-  save.addEventListener("click", ()=>{
-    const dk=dayKey();
-    const obj=read();
-    const m=parseInt(mins.value||"0",10);
-    if(isNaN(m) || m<0){ alert("请输入正确分钟数"); return; }
-    obj[dk]={ minutes:m, type:(type.value||"").trim() };
-    write(obj);
-    mins.value=""; type.value="";
-    update();
-  });
+  function render(){
+    const list = read().slice().sort((a,b)=> (b.date||"").localeCompare(a.date||"")).slice(0,10);
+    const listEl = $("eList");
+    if(listEl){
+      listEl.innerHTML = "";
+      if(list.length===0){
+        const e = document.createElement("div");
+        e.className = "hint";
+        e.textContent = "还没有记录运动。散步 10 分钟也算。";
+        listEl.appendChild(e);
+      }else{
+        list.forEach(it=>{
+          const row = document.createElement("div");
+          row.className = "kv";
+          row.innerHTML = `<span class="mono">${it.date}</span><span>${it.what||"运动"}</span><b>${Number(it.minutes||0)} min</b>`;
+          listEl.appendChild(row);
+        });
+      }
+    }
 
-  document.addEventListener("DOMContentLoaded", update);
+    // week total
+    const t = today();
+    const ws = weekStart(t);
+    const all = read();
+    const total = all
+      .filter(x=>x.date>=ws && x.date<=t)
+      .reduce((a,b)=>a+(Number(b.minutes)||0),0);
+    const wt = $("eWeekTotal");
+    if(wt) wt.textContent = String(total);
+  }
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const d = $("eDate");
+    if(d) d.value = today();
+
+    $("eSave")?.addEventListener("click", ()=>{
+      const date = ($("eDate")?.value || today()).trim();
+      const what = ($("eWhat")?.value || "").trim();
+      const minutes = Number(($("eMin")?.value || "0"));
+      const list = read();
+      list.push({date, what, minutes});
+      save(list);
+      render();
+      $("eWhat").value = "";
+      $("eMin").value = "";
+    });
+
+    render();
+  });
 })();

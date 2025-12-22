@@ -1,144 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>柴窝之家 · Home</title>
+  <title>柴窝之家 · 首页</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="chatbot.css" />
+  <script defer src="themeSwitch.js"></script>
+  <script defer src="main.js"></script>
+  <script defer src="chatbot.js"></script>
 </head>
-<body class="theme-default">
-  <div class="border-layer">
-    <div class="weather-fx"></div>
+<body class="theme-leaf">
+  <div class="border-frame" aria-hidden="true">
+    <div class="border-pattern"></div>
+    <div class="weather-ornaments" id="weatherOrnaments" aria-hidden="true"></div>
   </div>
 
-  <div class="shell">
-    <div class="app">
-      <div class="topbar">
-        <div class="brand">
-          <h1>柴窝之家</h1>
-          <div class="sub">植物系温柔小窝 · all‑in‑one</div>
-        </div>
+  <div class="page">
+    <nav class="top-nav">
+  <a href="index.html" class="nav-item" data-nav="home">🏡 首页</a>
+  <a href="reading.html" class="nav-item" data-nav="reading">📚 阅读</a>
+  <a href="writing.html" class="nav-item" data-nav="writing">✍️ 写作</a>
+  <a href="sleep.html" class="nav-item" data-nav="sleep">🌙 睡眠</a>
+  <a href="exercise.html" class="nav-item" data-nav="exercise">🏃 运动</a>
+  <a href="todo.html" class="nav-item" data-nav="todo">📋 待办</a>
+  <a href="goals.html" class="nav-item" data-nav="goals">🎯 目标</a>
+  <div class="nav-spacer"></div>
+  <button id="themeToggle" class="chip-btn" title="切换主题">🌿 主题</button>
+</nav>
 
-        <div class="nav">
-          <a class="active" href="index.html">🏠 Home</a>
-          <a href="reading.html">📚 Reading</a>
-          <a href="writing.html">✍️ Writing</a>
-          <a href="sleep.html">🌙 Sleep</a>
-          <a href="exercise.html">🏃 Exercise</a>
-          <a href="todo.html">✅ ToDo</a>
-        </div>
-
-        <div class="theme-switch">
-          <div class="pill" role="group" aria-label="主题切换">
-            <button class="theme-btn" data-theme="theme-default" aria-pressed="true" title="清叶">🌿</button>
-            <button class="theme-btn" data-theme="theme-moss" aria-pressed="false" title="青苔">🫧</button>
-            <button class="theme-btn" data-theme="theme-sun" aria-pressed="false" title="暖阳">🌞</button>
-            <button class="theme-btn" data-theme="theme-night" aria-pressed="false" title="夜色">🌙</button>
-          </div>
+    <header class="hero">
+      <div class="hero-left">
+        <h1 class="title">柴窝之家</h1>
+        <p class="subtitle">一个温柔、植物系的小窝：读书、写作、睡眠、运动与日常都在这里。</p>
+        <div class="hero-chips">
+          <span class="chip" id="locationChip">📍 定位中…</span>
+          <span class="chip" id="weatherChip">🌦 天气加载中…</span>
         </div>
       </div>
 
-      <div class="grid">
-        <section class="card">
-          <h2>📆 倒计时与进度</h2>
-
-          <div class="progress-wrap">
-            <div class="progress-line" id="progYear">
-              <div class="progress-head">
-                <div class="label">今年进度</div>
-                <div class="value"></div>
-              </div>
-              <div class="bar"><i></i></div>
-            </div>
-
-            <div class="progress-line" id="progMonth">
-              <div class="progress-head">
-                <div class="label">本月进度</div>
-                <div class="value"></div>
-              </div>
-              <div class="bar"><i></i></div>
-            </div>
-
-            <div class="progress-line" id="progDay">
-              <div class="progress-head">
-                <div class="label">今日进度</div>
-                <div class="value"></div>
-              </div>
-              <div class="bar"><i></i></div>
-            </div>
-          </div>
-
-          <div class="events">
-            <div class="small">自定义倒计时：旅行 / 会议 / 任务 …（会显示在列表里）</div>
-            <div class="form">
-              <input id="evtTitle" placeholder="倒计时事项（例如：杭州旅行）" />
-              <input id="evtDate" type="date" />
-              <button class="btn primary" id="evtAdd">添加</button>
-            </div>
-            <div class="event-list" id="eventList"></div>
-          </div>
-        </section>
-
-        <section class="card">
-          <h2>🌦 今日天气</h2>
-          <div class="weather">
-            <div class="icon" id="wxIcon">🌿</div>
-            <div class="meta">
-              <div class="place" id="wxPlace">定位中…</div>
-              <div class="desc" id="wxDesc">正在获取天气</div>
-            </div>
-          </div>
-
-          <hr class="sep" />
-
-          <h2>📜 伍尔夫每日一句</h2>
-          <div class="quote" id="quoteText"></div>
-
-          <hr class="sep" />
-
-          <h2>🧺 今日摘要</h2>
-          <div class="kv">
-            <div class="row"><div class="k">📚 阅读</div><div class="v" id="sumReading"></div></div>
-            <div class="row"><div class="k">✍️ 写作</div><div class="v" id="sumWriting"></div></div>
-            <div class="row"><div class="k">🌙 睡眠</div><div class="v" id="sumSleep"></div></div>
-            <div class="row"><div class="k">🏃 运动</div><div class="v" id="sumExercise"></div></div>
-            <div class="row"><div class="k">✅ 最优先待办</div><div class="v" id="sumTodo"></div></div>
-            <div class="row"><div class="k">🍅 番茄</div><div class="v" id="sumPomo"></div></div>
-          </div>
-
-          <hr class="sep" />
-
-          <h2>🍅 番茄钟</h2>
-          <div class="pomo">
-            <div class="tomato" id="tomato" title="单击开始/暂停 · 双击清零">
-              <div class="time" id="pomoTime">25:00</div>
-            </div>
-            <div class="hint">点击番茄开始/暂停，双击清零。完成后会自动+1。</div>
-            <div class="done" id="pomoDone"></div>
-          </div>
-        </section>
+      <div class="hero-right">
+        <div class="card compact">
+          <div class="card-title">📖 伍尔夫每日一句</div>
+          <blockquote class="quote" id="woolfQuote"></blockquote>
+        </div>
       </div>
-    </div>
+    </header>
+
+    <main class="grid">
+      <!-- 今日摘要 -->
+      <section class="card" id="dailySummaryCard">
+        <div class="card-title">🌱 今日摘要</div>
+        <div class="summary-row">
+          <div class="summary-pill">
+            <div class="pill-k">📚 阅读</div>
+            <div class="pill-v" id="sumReading">0</div>
+          </div>
+          <div class="summary-pill">
+            <div class="pill-k">✍️ 写作</div>
+            <div class="pill-v" id="sumWriting">0</div>
+          </div>
+          <div class="summary-pill">
+            <div class="pill-k">🏃 运动</div>
+            <div class="pill-v" id="sumExercise">0</div>
+          </div>
+          <div class="summary-pill">
+            <div class="pill-k">🌙 睡眠</div>
+            <div class="pill-v" id="sumSleep">0</div>
+          </div>
+        </div>
+
+        <div class="two-col mt">
+          <div class="mini">
+            <div class="mini-title">🪷 心情</div>
+            <div class="mini-body">
+              <div class="mood-row">
+                <input class="input" id="moodInput" placeholder="今天的心情…（比如：清澈/疲惫/亮亮的）" />
+                <button class="btn" id="saveMoodBtn">保存</button>
+              </div>
+              <div class="hint" id="moodSavedHint"></div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="mini-title">📌 最优先待办</div>
+            <div class="mini-body">
+              <div class="todo-row">
+                <input class="input" id="topTodoInput" placeholder="今天最重要的一件事…" />
+                <button class="btn" id="saveTopTodoBtn">保存</button>
+              </div>
+              <div class="todo-big" id="topTodoDisplay"></div>
+              <a class="link" href="todo.html">→ 去待办页管理全部事项</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 倒计时与进度条 -->
+      <section class="card">
+        <div class="card-title">⏳ 倒计时与进度</div>
+
+        <div class="progress-block">
+          <div class="progress-head">
+            <span>今年进度</span>
+            <span class="mono" id="yearProgressText">计算中…</span>
+          </div>
+          <div class="progress-rail">
+            <div class="progress-fill" id="yearProgressBar"></div>
+          </div>
+        </div>
+
+        <div class="progress-block">
+          <div class="progress-head">
+            <span>本月进度</span>
+            <span class="mono" id="monthProgressText">计算中…</span>
+          </div>
+          <div class="progress-rail">
+            <div class="progress-fill" id="monthProgressBar"></div>
+          </div>
+        </div>
+
+        <div class="progress-block">
+          <div class="progress-head">
+            <span>今天剩余</span>
+            <span class="mono" id="dayProgressText">计算中…</span>
+          </div>
+          <div class="progress-rail">
+            <div class="progress-fill" id="dayProgressBar"></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="custom-countdown">
+          <div class="mini-title">🗓 自定义倒计时</div>
+          <div class="row">
+            <input class="input" id="ccTitle" placeholder="事项（比如：旅行/DDL/活动）" />
+            <input class="input" id="ccDate" type="date" />
+            <button class="btn" id="ccAdd">添加</button>
+          </div>
+          <div class="cc-list" id="ccList"></div>
+        </div>
+      </section>
+
+      <!-- 番茄钟 -->
+      <section class="card">
+        <div class="card-title">🍅 番茄钟</div>
+        <div class="pomodoro-wrap">
+          <div class="tomato" id="tomatoBtn" title="单击开始/暂停；双击重置">
+            <div class="tomato-shine"></div>
+            <div class="tomato-time" id="pomodoroTime">25:00</div>
+          </div>
+          <div class="pomodoro-help">单击：开始/暂停 · 双击：清零 · 完成后会在右侧累计 🍅</div>
+          <div class="tomato-line" id="tomatoLine"></div>
+        </div>
+      </section>
+
+      <!-- 天气细节 -->
+      <section class="card">
+        <div class="card-title">🌦 天气与边框联动</div>
+        <div class="weather-details">
+          <div class="weather-big" id="weatherBig">⛅</div>
+          <div class="weather-meta">
+            <div class="weather-kv"><span class="k">状况</span><span class="v" id="weatherCond">加载中…</span></div>
+            <div class="weather-kv"><span class="k">温度</span><span class="v" id="weatherTemp">—</span></div>
+            <div class="weather-kv"><span class="k">风速</span><span class="v" id="weatherWind">—</span></div>
+            <div class="hint">若定位被拒绝，会回退到“郑州”默认天气。</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="muted">柴窝之家 · v6 进阶版（不丢功能的累积式升级）</span>
+    </footer>
   </div>
 
-  <!-- 柴柴助理 -->
-  <div id="chai-fab" title="柴柴助理">☁️</div>
-  <div id="chai-chat" aria-label="柴柴助理对话窗">
-    <div class="head">
-      <div class="title">柴柴助理 · 阿柴</div>
-      <button class="close" title="关闭">×</button>
+  <!-- 柴柴助理按钮与窗口 -->
+  <button id="toggle-chatbot" class="floating-chat" aria-label="打开柴柴助理">☁️</button>
+  <div id="chatbot-box" class="chatbox" role="dialog" aria-label="柴柴助理聊天窗">
+    <div id="chatbot-header" class="chatbox-header">
+      <span>柴柴助理 · 植物系小聊天</span>
+      <button id="close-chatbot" class="chatbox-close" aria-label="关闭">×</button>
     </div>
-    <div class="log"></div>
-    <div class="composer">
-      <input placeholder="跟阿柴说点什么…（回车发送）" />
-      <button class="btn primary send">发送</button>
+    <div id="chat-area" class="chatbox-area"></div>
+    <div id="user-input-container" class="chatbox-input">
+      <input id="user-input" class="input" placeholder="和阿柴说点什么…" />
+      <button id="send-btn" class="btn">发送</button>
+    </div>
+    <div class="chatbox-footnote">
+      <span class="muted">提示：聊天需要在 Vercel 设置 OPENAI_API_KEY 环境变量，并部署 /api/chat。</span>
     </div>
   </div>
-
-  <script src="themeSwitch.js"></script>
-  <script src="weather.js"></script>
-  <script src="main.js"></script>
-  <script src="chatbot.js"></script>
 </body>
 </html>
