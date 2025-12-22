@@ -166,10 +166,10 @@ function setupThemeModal(){
   applyNight(savedNight);
 }
 
-// Quote
-function setRandomQuote(){
-  const el = document.getElementById("woolfQuote");
-  if (el) el.textContent = rand(woolfQuotes);
+function setRandomQuote() {
+  // 我们现在使用 woolfQuotes.js 来处理语录
+  // 所以这里留空，防止它覆盖掉 index.html 里的伍尔夫原句
+  console.log("Quotes are now handled by woolfQuotes.js");
 }
 
 // Year progress bar
