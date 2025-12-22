@@ -1,39 +1,41 @@
-// 年度进度条
-const now = new Date();
-const start = new Date(now.getFullYear(), 0, 1);
-const end = new Date(now.getFullYear() + 1, 0, 1);
-const total = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-const past = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-const percent = ((past / total) * 100).toFixed(1);
 
-document.getElementById("year-text").textContent =
-  `今年已经过去了 ${past} 天，还剩下 ${total - past} 天`;
+// 主题切换
+document.getElementById("toggle-theme").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+});
 
-const progressFill = document.getElementById("progress-fill");
-progressFill.style.width = percent + "%";
+// 倒计时显示
+function updateCountdown() {
+  const now = new Date();
+  const yearEnd = new Date(now.getFullYear(), 11, 31);
+  const daysLeft = Math.ceil((yearEnd - now) / (1000 * 60 * 60 * 24));
+  document.getElementById("year-end-countdown").innerText = `今年还剩下 ${daysLeft} 天`;
+}
+updateCountdown();
 
-// 莫兰迪色系
-const morandi = [
-  "#c5c6c7", "#a8c0b5", "#d2b48c", "#e5c1bd", "#c0d6df",
-  "#f1e3dd", "#b4c5c1", "#d3cbc6", "#d9b8c4"
-];
-progressFill.style.backgroundColor =
-  morandi[Math.floor(Math.random() * morandi.length)];
+// 自定义倒计时添加
+document.getElementById("custom-countdown-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const name = document.getElementById("event-name").value;
+  const date = new Date(document.getElementById("event-date").value);
+  const now = new Date();
+  const days = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+  const li = document.createElement("li");
+  li.textContent = `${name}：还有 ${days} 天`;
+  document.getElementById("custom-countdown-list").appendChild(li);
+  this.reset();
+});
 
-// 伍尔夫语录（可扩展）
+// 随机语录
 const quotes = [
-  "Books are the mirrors of the soul. – Woolf",
-  "A woman must have money and a room of her own...",
-  "For most of history, Anonymous was a woman.",
-  "I am rooted, but I flow."
+  "“I am rooted, but I flow.” — Virginia Woolf",
+  "“Books are the mirrors of the soul.” — Virginia Woolf",
+  "“No need to hurry. No need to sparkle.”",
+  "“A woman must have money and a room of her own.”",
+  "“The eyes of others our prisons; their thoughts our cages.”"
 ];
-document.getElementById("woolf-quote").textContent =
-  quotes[Math.floor(Math.random() * quotes.length)];
+document.getElementById("quote-text").innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-// 天气模拟 + 边框装饰
-const weatherStates = ["sunny", "cloudy", "rainy", "snowy"];
-const todayWeather = weatherStates[Math.floor(Math.random() * 4)];
-document.getElementById("weather").textContent = "天气：" + todayWeather;
-
-const deco = document.getElementById("weather-decoration");
-deco.className = todayWeather;
+// 天气模拟（未来可接入API）
+document.getElementById("weather-display").innerText = "☀️ 郑州 · 晴 15°C";
+// ⚠️ 你可使用 OpenWeatherMap API 获取实时天气并渲染不同背景
