@@ -2,63 +2,143 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>柴窝之家 - 主页</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>柴窝之家 · Home</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="chatbot.css" />
 </head>
 <body class="theme-default">
-  <div class="border-decor"></div>
-  <div class="top-bar">
-    <div class="nav-buttons">
-      <a href="index.html">🏠 主页</a>
-      <a href="reading.html">📚 阅读</a>
-    </div>
-    <button id="themeToggle">🌿 更换主题</button>
+  <div class="border-layer">
+    <div class="weather-fx"></div>
   </div>
 
-  <main class="main-panel">
-    <section class="countdown-block">
-      <h2>📆 年进度</h2>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="yearProgress"></div>
+  <div class="shell">
+    <div class="app">
+      <div class="topbar">
+        <div class="brand">
+          <h1>柴窝之家</h1>
+          <div class="sub">植物系温柔小窝 · all‑in‑one</div>
+        </div>
+
+        <div class="nav">
+          <a class="active" href="index.html">🏠 Home</a>
+          <a href="reading.html">📚 Reading</a>
+          <a href="writing.html">✍️ Writing</a>
+          <a href="sleep.html">🌙 Sleep</a>
+          <a href="exercise.html">🏃 Exercise</a>
+          <a href="todo.html">✅ ToDo</a>
+        </div>
+
+        <div class="theme-switch">
+          <div class="pill" role="group" aria-label="主题切换">
+            <button class="theme-btn" data-theme="theme-default" aria-pressed="true" title="清叶">🌿</button>
+            <button class="theme-btn" data-theme="theme-moss" aria-pressed="false" title="青苔">🫧</button>
+            <button class="theme-btn" data-theme="theme-sun" aria-pressed="false" title="暖阳">🌞</button>
+            <button class="theme-btn" data-theme="theme-night" aria-pressed="false" title="夜色">🌙</button>
+          </div>
+        </div>
       </div>
-      <p id="yearPercentageText"></p>
-    </section>
 
-    <section class="weather-block">
-      <h2>🌦 今日天气</h2>
-      <div id="weatherVisual"></div>
-      <p id="weatherInfo">正在获取天气...</p>
-    </section>
+      <div class="grid">
+        <section class="card">
+          <h2>📆 倒计时与进度</h2>
 
-    <section class="quote-block">
-      <h2>📖 伍尔夫语录</h2>
-      <blockquote id="woolfQuote"></blockquote>
-    </section>
+          <div class="progress-wrap">
+            <div class="progress-line" id="progYear">
+              <div class="progress-head">
+                <div class="label">今年进度</div>
+                <div class="value"></div>
+              </div>
+              <div class="bar"><i></i></div>
+            </div>
 
-    <section class="summary-block">
-      <h2>🌱 今日摘要</h2>
-      <p id="todaySummary">你今天看起来状态不错，继续加油哦～</p>
-      <p id="mainTodo">最重要事项：完成今日阅读记录 ✅</p>
-    </section>
+            <div class="progress-line" id="progMonth">
+              <div class="progress-head">
+                <div class="label">本月进度</div>
+                <div class="value"></div>
+              </div>
+              <div class="bar"><i></i></div>
+            </div>
 
-    <section class="pomodoro-block">
-      <h2>🍅 番茄钟</h2>
-      <div id="pomodoro">
-        <div id="tomato">🍅</div>
-        <p id="timer">25:00</p>
-        <div id="finishedTomatoes"></div>
+            <div class="progress-line" id="progDay">
+              <div class="progress-head">
+                <div class="label">今日进度</div>
+                <div class="value"></div>
+              </div>
+              <div class="bar"><i></i></div>
+            </div>
+          </div>
+
+          <div class="events">
+            <div class="small">自定义倒计时：旅行 / 会议 / 任务 …（会显示在列表里）</div>
+            <div class="form">
+              <input id="evtTitle" placeholder="倒计时事项（例如：杭州旅行）" />
+              <input id="evtDate" type="date" />
+              <button class="btn primary" id="evtAdd">添加</button>
+            </div>
+            <div class="event-list" id="eventList"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>🌦 今日天气</h2>
+          <div class="weather">
+            <div class="icon" id="wxIcon">🌿</div>
+            <div class="meta">
+              <div class="place" id="wxPlace">定位中…</div>
+              <div class="desc" id="wxDesc">正在获取天气</div>
+            </div>
+          </div>
+
+          <hr class="sep" />
+
+          <h2>📜 伍尔夫每日一句</h2>
+          <div class="quote" id="quoteText"></div>
+
+          <hr class="sep" />
+
+          <h2>🧺 今日摘要</h2>
+          <div class="kv">
+            <div class="row"><div class="k">📚 阅读</div><div class="v" id="sumReading"></div></div>
+            <div class="row"><div class="k">✍️ 写作</div><div class="v" id="sumWriting"></div></div>
+            <div class="row"><div class="k">🌙 睡眠</div><div class="v" id="sumSleep"></div></div>
+            <div class="row"><div class="k">🏃 运动</div><div class="v" id="sumExercise"></div></div>
+            <div class="row"><div class="k">✅ 最优先待办</div><div class="v" id="sumTodo"></div></div>
+            <div class="row"><div class="k">🍅 番茄</div><div class="v" id="sumPomo"></div></div>
+          </div>
+
+          <hr class="sep" />
+
+          <h2>🍅 番茄钟</h2>
+          <div class="pomo">
+            <div class="tomato" id="tomato" title="单击开始/暂停 · 双击清零">
+              <div class="time" id="pomoTime">25:00</div>
+            </div>
+            <div class="hint">点击番茄开始/暂停，双击清零。完成后会自动+1。</div>
+            <div class="done" id="pomoDone"></div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <section class="chatbot-entry">
-      <h2>💬 聊天助手</h2>
-      <button id="chatToggle">打开柴柴 ☁️</button>
-      <iframe id="chatIframe" style="display:none;" src="https://chat.openai.com/chat" width="100%" height="400"></iframe>
-    </section>
-  </main>
+  <!-- 柴柴助理 -->
+  <div id="chai-fab" title="柴柴助理">☁️</div>
+  <div id="chai-chat" aria-label="柴柴助理对话窗">
+    <div class="head">
+      <div class="title">柴柴助理 · 阿柴</div>
+      <button class="close" title="关闭">×</button>
+    </div>
+    <div class="log"></div>
+    <div class="composer">
+      <input placeholder="跟阿柴说点什么…（回车发送）" />
+      <button class="btn primary send">发送</button>
+    </div>
+  </div>
 
-  <script src="main.js"></script>
   <script src="themeSwitch.js"></script>
+  <script src="weather.js"></script>
+  <script src="main.js"></script>
+  <script src="chatbot.js"></script>
 </body>
 </html>
