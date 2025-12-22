@@ -1,57 +1,64 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>柴窝之家 · 首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>柴窝之家 - 主页</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="morandi-theme">
-  <div class="page-container">
-    <header>
-      <h1>柴窝之家 🏡</h1>
-      <nav class="top-nav">
-        <a href="index.html" class="active">主页</a>
-        <a href="reading.html">读书</a>
-        <a href="#">写作</a>
-        <a href="#">睡眠</a>
-        <a href="#">运动</a>
-      </nav>
-    </header>
-
-    <main>
-      <section class="summary">
-        <h2>📌 今日摘要</h2>
-        <p id="summaryText">你今天还没有打卡记录哦！快去完成番茄钟或阅读一本书吧～</p>
-      </section>
-
-      <section class="mood-todo">
-        <h2>🪷 心情与待办</h2>
-        <input type="text" id="moodInput" placeholder="你今天的心情是..." />
-        <input type="text" id="todoInput" placeholder="最重要的待办事项是..." />
-        <button onclick="saveMoodTodo()">保存</button>
-        <div id="moodDisplay" class="mood-summary"></div>
-        <div id="todoDisplay" class="todo-summary"></div>
-      </section>
-
-      <section class="pomodoro-section">
-        <h2>🍅 番茄钟</h2>
-        <div class="pomodoro">
-          <div class="tomato" onclick="togglePomodoro()" ondblclick="resetPomodoro()">
-            <span id="timer">25:00</span>
-          </div>
-          <div id="completedTomatoes"></div>
-        </div>
-      </section>
-    </main>
-
-    <div id="chat-button" onclick="toggleChat()">☁️</div>
-    <div id="chat-window">
-      <iframe src="https://chat.openai.com/chat" width="100%" height="100%"></iframe>
+<body class="theme-default">
+  <div class="border-decor"></div>
+  <div class="top-bar">
+    <div class="nav-buttons">
+      <a href="index.html">🏠 主页</a>
+      <a href="reading.html">📚 阅读</a>
     </div>
+    <button id="themeToggle">🌿 更换主题</button>
   </div>
 
+  <main class="main-panel">
+    <section class="countdown-block">
+      <h2>📆 年进度</h2>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="yearProgress"></div>
+      </div>
+      <p id="yearPercentageText"></p>
+    </section>
+
+    <section class="weather-block">
+      <h2>🌦 今日天气</h2>
+      <div id="weatherVisual"></div>
+      <p id="weatherInfo">正在获取天气...</p>
+    </section>
+
+    <section class="quote-block">
+      <h2>📖 伍尔夫语录</h2>
+      <blockquote id="woolfQuote"></blockquote>
+    </section>
+
+    <section class="summary-block">
+      <h2>🌱 今日摘要</h2>
+      <p id="todaySummary">你今天看起来状态不错，继续加油哦～</p>
+      <p id="mainTodo">最重要事项：完成今日阅读记录 ✅</p>
+    </section>
+
+    <section class="pomodoro-block">
+      <h2>🍅 番茄钟</h2>
+      <div id="pomodoro">
+        <div id="tomato">🍅</div>
+        <p id="timer">25:00</p>
+        <div id="finishedTomatoes"></div>
+      </div>
+    </section>
+
+    <section class="chatbot-entry">
+      <h2>💬 聊天助手</h2>
+      <button id="chatToggle">打开柴柴 ☁️</button>
+      <iframe id="chatIframe" style="display:none;" src="https://chat.openai.com/chat" width="100%" height="400"></iframe>
+    </section>
+  </main>
+
   <script src="main.js"></script>
+  <script src="themeSwitch.js"></script>
 </body>
 </html>

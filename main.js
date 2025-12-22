@@ -1,65 +1,79 @@
+// 年度进度条
+const yearProgress = document.getElementById('yearProgress');
+const yearPercentageText = document.getElementById('yearPercentageText');
+const today = new Date();
+const start = new Date(today.getFullYear(), 0, 0);
+const diff = today - start;
+const oneDay = 1000 * 60 * 60 * 24;
+const dayOfYear = Math.floor(diff / oneDay);
+const percentage = Math.floor((dayOfYear / 365) * 100);
+yearProgress.style.width = percentage + '%';
+yearProgress.style.backgroundColor = '#a4c49a';
+yearPercentageText.textContent = `今年已过去 ${percentage}%`;
 
-let timer;
-let timeLeft = 25 * 60;
-let isRunning = false;
-let completedCount = 0;
+// 天气
+navigator.geolocation.getCurrentPosition(async (pos) => {
+  const { latitude, longitude } = pos.coords;
+  const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=demo&q=${latitude},${longitude}`);
+  const data = await response.json();
+  document.getElementById("weatherInfo").textContent =
+    `${data.location.name}：${data.current.condition.text}，${data.current.temp_c}°C`;
+  const icon = data.current.condition.icon;
+  document.getElementById("weatherVisual").innerHTML = `<img src="${icon}" alt="weather icon">`;
+});
 
-function updateDisplay() {
-  const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-  const seconds = String(timeLeft % 60).padStart(2, '0');
-  document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+// 随机语录
+const quotes = [
+  "“I am rooted, but I flow.” – Virginia Woolf",
+  "“Books are the mirrors of the soul.”",
+  "“Arrange whatever pieces come your way.”",
+  "“Lock up your libraries if you like; but there is no gate, no lock, no bolt that you can set upon the freedom of my mind.”"
+];
+document.getElementById("woolfQuote").textContent =
+  quotes[Math.floor(Math.random() * quotes.length)];
+
+// 番茄钟
+let timer = 1500, interval = null;
+const timerDisplay = document.getElementById("timer");
+const tomato = document.getElementById("tomato");
+const finishedTomatoes = document.getElementById("finishedTomatoes");
+
+function updateTimer() {
+  const min = String(Math.floor(timer / 60)).padStart(2, '0');
+  const sec = String(timer % 60).padStart(2, '0');
+  timerDisplay.textContent = `${min}:${sec}`;
 }
 
-function togglePomodoro() {
-  if (isRunning) {
-    clearInterval(timer);
-    isRunning = false;
-  } else {
-    isRunning = true;
-    timer = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft--;
-        updateDisplay();
-      } else {
-        clearInterval(timer);
-        isRunning = false;
-        completedCount++;
-        document.getElementById("completedTomatoes").innerHTML += '<span class="tomato-icon">🍅</span>';
-        timeLeft = 25 * 60;
-        updateDisplay();
-      }
-    }, 1000);
+function tick() {
+  timer--;
+  updateTimer();
+  if (timer <= 0) {
+    clearInterval(interval);
+    finishedTomatoes.innerHTML += "🍅";
+    timer = 1500;
+    updateTimer();
   }
 }
 
-function resetPomodoro() {
-  clearInterval(timer);
-  timeLeft = 25 * 60;
-  updateDisplay();
-  isRunning = false;
-}
-
-function toggleChat() {
-  const chat = document.getElementById("chat-window");
-  chat.style.display = chat.style.display === "block" ? "none" : "block";
-}
-
-function saveMoodTodo() {
-  const mood = document.getElementById("moodInput").value;
-  const todo = document.getElementById("todoInput").value;
-  localStorage.setItem("todayMood", mood);
-  localStorage.setItem("todayTodo", todo);
-  updateMoodTodoDisplay();
-}
-
-function updateMoodTodoDisplay() {
-  const mood = localStorage.getItem("todayMood") || "（还没记录今日心情）";
-  const todo = localStorage.getItem("todayTodo") || "（还没设置今日最重要事项）";
-  document.getElementById("moodDisplay").textContent = `今日心情：${mood}`;
-  document.getElementById("todoDisplay").textContent = `待办优先事项：${todo}`;
-}
-
-window.onload = () => {
-  updateDisplay();
-  updateMoodTodoDisplay();
+tomato.onclick = () => {
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+  } else {
+    interval = setInterval(tick, 1000);
+  }
 };
+tomato.ondblclick = () => {
+  clearInterval(interval);
+  interval = null;
+  timer = 1500;
+  updateTimer();
+};
+
+// 聊天入口
+document.getElementById("chatToggle").onclick = () => {
+  const iframe = document.getElementById("chatIframe");
+  iframe.style.display = iframe.style.display === "none" ? "block" : "none";
+};
+
+updateTimer();
