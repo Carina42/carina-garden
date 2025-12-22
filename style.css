@@ -1,79 +1,107 @@
-
 :root {
-  --bg-color: #fdfcf7;
-  --text-color: #2d2d2d;
-  --accent: #c0e8d5;
-  --panel-bg: #ffffff;
-}
-
-body.dark {
-  --bg-color: #1a1a1a;
-  --text-color: #e0e0e0;
-  --accent: #a6d4c2;
-  --panel-bg: #2c2c2c;
+  --accent: #b4c5c1;
+  --text-color: #333;
+  --panel-bg: #fefefe;
 }
 
 body {
   margin: 0;
   font-family: "Helvetica Neue", sans-serif;
-  background-color: var(--bg-color);
+  background-color: #fdfaf6;
   color: var(--text-color);
-  transition: background 0.4s, color 0.4s;
 }
 
-header {
-  background: var(--accent);
-  padding: 1rem;
+/* 页面居中容器 */
+.centered-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* 顶部导航 */
+.top-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.module, .module-grid > div {
-  background: var(--panel-bg);
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 1rem 0;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
-}
-
-.module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-}
-
-#bookshelf-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.book-slot {
-  width: 60px;
-  height: 90px;
-  border: 1px dashed #ccc;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  padding: 0.75rem;
   background-color: var(--panel-bg);
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-
-.book-slot img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-button {
-  margin: 0.2rem;
+.top-nav a {
+  text-decoration: none;
+  color: var(--text-color);
+  background: var(--accent);
   padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 6px;
-  background-color: var(--accent);
-  cursor: pointer;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: background 0.3s ease;
+}
+.top-nav a:hover {
+  background-color: #99d1bd;
+  color: #fff;
 }
 
-button:hover {
-  opacity: 0.9;
+/* 进度条 */
+.year-progress {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background-color: var(--accent);
+  transition: width 1s ease;
+}
+
+/* 天气装饰边框 */
+#weather-decoration.sunny::before {
+  content: "☀️";
+  position: fixed;
+  right: 2rem;
+  top: 1rem;
+  font-size: 2rem;
+}
+#weather-decoration.cloudy::before {
+  content: "☁️☁️";
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1.5rem;
+}
+#weather-decoration.rainy::before {
+  content: "🌧️";
+  position: fixed;
+  left: 2rem;
+  top: 0.5rem;
+  font-size: 1.8rem;
+}
+#weather-decoration.snowy::before {
+  content: "❄️❄️";
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+/* 语录区域 */
+.quote-box {
+  padding: 1rem;
+  background-color: #f3f3f3;
+  border-left: 5px solid #b4c5c1;
+  font-style: italic;
+}
+
+.weather-box {
+  margin-top: 1rem;
+  font-weight: bold;
 }
