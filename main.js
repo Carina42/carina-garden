@@ -167,9 +167,10 @@ function setupThemeModal(){
 }
 
 function setRandomQuote() {
-  // 我们现在使用 woolfQuotes.js 来处理语录
-  // 所以这里留空，防止它覆盖掉 index.html 里的伍尔夫原句
-  console.log("Quotes are now handled by woolfQuotes.js");
+  // 让 woolfQuotes.js 来接管，这里不再执行旧逻辑
+  if(window.WoolfQuotes && window.WoolfQuotes.render) {
+    window.WoolfQuotes.render("woolfQuote", "woolfQuoteSource");
+  }
 }
 
 // Year progress bar
