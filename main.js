@@ -553,10 +553,7 @@ window.addEventListener("load", () => {
 
  const refresh = document.getElementById("refreshQuote");
 if (refresh) refresh.addEventListener("click", (e) => { 
-  // 调用 woolfQuotes.js 提供的渲染功能
-  if(window.WoolfQuotes && window.WoolfQuotes.render){
-     window.WoolfQuotes.render("woolfQuote", "woolfQuoteSource");
-  }
+  setRandomQuote(); // 这里的 setRandomQuote 已经变成调用伍尔夫语录了
   spawnPetals(e.clientX, e.clientY, 10); 
 });
 
