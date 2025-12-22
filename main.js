@@ -119,12 +119,22 @@
 
   async function fetchWeather(lat, lon){
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto`;
-    const res = await fetch(url);
+    const res = await fetch(url, {cache: "no-store"});
     if(!res.ok) throw new Error("weather_fetch_failed");
     return await res.json();
   }
 
-  function setWeatherUI(placeName, tempC, code, wind){
+
+  
+  const WEATHER_KEY = "chai_weather_cache_v7";
+  function saveWeatherCache(obj){
+    try{ localStorage.setItem(WEATHER_KEY, JSON.stringify(obj)); }catch(_){}
+  }
+  function loadWeatherCache(){
+    try{ return JSON.parse(localStorage.getItem(WEATHER_KEY)||"null"); }catch(_){ return null; }
+  }
+
+function setWeatherUI(placeName, tempC, code, wind){
     const w = weatherCodeToKind(code);
     const locChip = $("locationChip");
     const chip = $("weatherChip");
@@ -197,9 +207,15 @@
       const code = cur.weather_code;
       const wind = Math.round(cur.wind_speed_10m);
       setWeatherUI(place, tempC, code, wind);
+      saveWeatherCache({place, lat, lon, tempC, code, wind, ts: Date.now()});
     }catch(_){
       // graceful
-      setWeatherUI(place, "—", 2, "—");
+      const cached = loadWeatherCache();
+      if(cached && cached.tempC!=null){
+        setWeatherUI(cached.place || place, cached.tempC, cached.code ?? 2, cached.wind ?? "—");
+      }else{
+        setWeatherUI(place, "—", 2, "—");
+      }
     }
   }
 

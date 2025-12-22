@@ -6,7 +6,13 @@
   <title>柴窝之家 · 首页</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="chatbot.css" />
-  <script defer src="themeSwitch.js"></script>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2f6b53" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <script defer src="themePicker.js"></script>
+  <script defer src="pwa.js"></script>
   <script defer src="main.js"></script>
   <script defer src="chatbot.js"></script>
 </head>
@@ -189,8 +195,21 @@
       <button id="send-btn" class="btn">发送</button>
     </div>
     <div class="chatbox-footnote">
-      <span class="muted">提示：聊天需要在 Vercel 设置 OPENAI_API_KEY 环境变量，并部署 /api/chat。</span>
+      <span class="muted">提示：当前为离线本地“阿柴语料库”回复（无需API）。</span>
     </div>
   </div>
+
+  <!-- Theme Picker Modal -->
+  <div id="themePicker" class="theme-picker" aria-hidden="true">
+    <div class="theme-picker-panel" role="dialog" aria-label="主题选择">
+      <div class="theme-picker-head">
+        <div class="theme-picker-title">选择主题 · <span id="themeCurrent">叶影</span></div>
+        <button id="themeClose" class="icon-btn" aria-label="关闭">✕</button>
+      </div>
+      <div id="themeGrid" class="theme-grid"></div>
+      <div class="theme-picker-tip">提示：主题会记住，下次打开还是它。</div>
+    </div>
+  </div>
+
 </body>
 </html>
