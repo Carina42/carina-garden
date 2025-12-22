@@ -1,68 +1,55 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>柴窝之家 · 主页</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script defer src="main.js"></script>
+  <title>柴窝之家 · 首页</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>🐾 欢迎来到柴窝之家，Carina的小世界</h1>
-      <button id="toggle-theme">🌞/🌙</button>
-    </header>
 
-    <section id="summary">
-      <div class="module" id="weather-module">
-        <h2>📍 当前天气</h2>
-        <div id="weather-display">加载中…</div>
-      </div>
+  <nav class="top-nav">
+    <a href="index.html">🏡 首页</a>
+    <a href="reading.html">📚 阅读</a>
+    <a href="writing.html">✍️ 写作</a>
+    <a href="sleep.html">🌙 睡眠</a>
+    <a href="exercise.html">🏃 运动</a>
+    <a href="goals.html">🎯 年度目标</a>
+  </nav>
 
-      <div class="module" id="countdown-module">
-        <h2>📅 时间倒计时</h2>
-        <ul>
-          <li id="year-end-countdown">今年还剩下 X 天</li>
-        </ul>
-        <form id="custom-countdown-form">
-          <input type="text" placeholder="倒计时事项，如旅行" id="event-name"/>
-          <input type="date" id="event-date"/>
-          <button type="submit">添加</button>
-        </form>
-        <ul id="custom-countdown-list"></ul>
-      </div>
+  <main class="centered-container">
+    <h1 class="title">柴窝之家 · 精致版</h1>
 
-      <div class="module" id="quote-module">
-        <h2>📖 今日的伍尔夫语录</h2>
-        <blockquote id="quote-text">“Loading Woolf wisdom...”</blockquote>
+    <section class="year-progress plant-progress">
+      <p id="year-text">正在计算年度进度...</p>
+      <div class="progress-bar plant-bar">
+        <div class="progress-fill" id="progress-fill"></div>
       </div>
     </section>
 
-    <section id="project-status">
-      <h2>📊 各项目进度概览</h2>
-      <div class="module-grid">
-        <div class="module">
-          <h3>📚 阅读追踪</h3>
-          <p id="book-progress">你今年已读 0 本书</p>
-          <a href="reading.html">进入阅读书架 →</a>
-        </div>
-        <div class="module">
-          <h3>✍️ 写作追踪</h3>
-          <p id="writing-summary">今天尚未写作</p>
-          <a href="writing.html">进入写作空间 →</a>
-        </div>
-        <div class="module">
-          <h3>🏃 运动打卡</h3>
-          <p>功能开发中…</p>
-        </div>
-        <div class="module">
-          <h3>😴 睡眠记录</h3>
-          <p>功能开发中…</p>
-        </div>
-      </div>
+    <section class="quote-box">
+      <p id="woolf-quote">伍尔夫语录加载中…</p>
     </section>
-  </div>
+
+    <section class="weather-info">
+      <p id="weather-text">天气加载中…</p>
+    </section>
+
+    <section class="module-preview">
+      <h2>📚 阅读状态</h2>
+      <p>今年已读 <span id="reading-count">0</span> 本书</p>
+    </section>
+
+    <section class="writing-preview">
+      <h2>✍️ 写作追踪</h2>
+      <p>今日写作状态：<span id="writing-status">未开始</span></p>
+      <p>本月累计字数：<span id="writing-words">0</span> 字</p>
+    </section>
+
+  </main>
+
+  <div id="weather-effect"></div>
+
+  <script src="main.js"></script>
 </body>
 </html>
