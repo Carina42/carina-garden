@@ -1,1 +1,52 @@
-GENERATE_READING_PAGE
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📚 阅读追踪 | 柴窝之家</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script defer src="reading.js"></script>
+</head>
+<body>
+  <div id="reading-app">
+    <header>
+      <h1>📚 阅读书架</h1>
+      <a href="index.html">← 返回主页</a>
+    </header>
+
+    <section id="shelf-controls">
+      <h2>📖 当前书籍总数：<span id="book-count">0</span></h2>
+      <button id="add-book">➕ 一本</button>
+      <button id="remove-book">➖ 一本</button>
+    </section>
+
+    <section id="flower-animation">
+      <h2>🌸 阅读进度奖励</h2>
+      <div id="flower-display">未开花</div>
+    </section>
+
+    <section id="upload-form">
+      <h2>🖼️ 上传封面 + 书名</h2>
+      <input type="text" id="book-title" placeholder="书名" />
+      <input type="file" id="book-cover" accept="image/*" />
+      <button id="upload-book">添加到书架</button>
+    </section>
+
+    <section id="bookshelf">
+      <h2>📚 我的书架</h2>
+      <div id="bookshelf-container"></div>
+    </section>
+
+    <section id="reading-log">
+      <h2>📒 阅读记录表</h2>
+      <table>
+        <thead>
+          <tr><th>书名</th><th>封面</th><th>备注</th></tr>
+        </thead>
+        <tbody id="reading-table-body"></tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
