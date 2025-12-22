@@ -568,3 +568,85 @@ body.night .site-footer{color:rgba(220,220,220,.72);}
   .nav-more{display:inline-flex !important;align-items:center;gap:6px;}
   .theme-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* --- 子页面全局排版修正 (防止拥挤) --- */
+
+/* 1. 限制主容器宽度，增加呼吸感 */
+.page-container {
+    max-width: 800px; /* 限制最大宽度，防止横向拉伸 */
+    margin: 0 auto;
+    padding: 20px 15px 80px 15px; /* 底部留白给阿柴，左右留白 */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 卡片之间的间距 */
+}
+
+/* 2. 统一卡片样式，确保功能区层次分明 */
+.card {
+    background: var(--paper);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* 3. 解决输入区域拥挤：自动换行逻辑 */
+.row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap; /* 空间不足时自动折行，防止挤爆 */
+    align-items: center;
+    margin-top: 15px;
+}
+
+.row .input {
+    flex: 1; 
+    min-width: 140px; /* 保证输入框不会缩得太小 */
+}
+
+/* 4. 写作页特有统计区排版 */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .summary-row { flex-direction: column; } /* 手机端上下排列 */
+}
+
+/* 5. 伍尔夫语录 - 英伦文学排版 */
+.quote-area {
+    margin-top: 15px;
+    padding: 15px 10px;
+    border-top: 1px dashed var(--accent-2);
+    text-align: center;
+}
+
+#woolfQuote {
+    font-family: "Optima", "Georgia", "Libre Baskerville", serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: block;
+}
+
+#woolfQuoteSource {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+}
+
+/* 6. 热力图修正 */
+.mini-heat {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+}
