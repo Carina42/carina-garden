@@ -1,49 +1,50 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📚 阅读追踪 | 柴窝之家</title>
+  <title>读书记录 - 柴窝之家</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="reading-page">
+  <header class="navbar">
+    <nav>
+      <a href="index.html">🏠 主页</a>
+      <a href="reading.html" class="active">📚 阅读</a>
+      <a href="#">🌱 写作</a>
+      <a href="#">💤 睡眠</a>
+    </nav>
+  </header>
 
-  <nav class="top-nav">
-    <a href="index.html">🏡 首页</a>
-    <a href="reading.html">📚 阅读</a>
-    <a href="writing.html">✍️ 写作</a>
-    <a href="sleep.html">🌙 睡眠</a>
-    <a href="exercise.html">🏃 运动</a>
-    <a href="goals.html">🎯 年度目标</a>
-  </nav>
+  <div class="bookshelf-decor">
+    <img class="bookshelf-bg" src="https://cdn.pixabay.com/photo/2017/01/18/17/14/library-1992303_1280.jpg" alt="Bookshelf Background" />
+  </div>
 
-  <main class="centered-container">
-    <h1>📚 阅读书架</h1>
+  <section class="add-book-form">
+    <h2>添加新书</h2>
+    <form id="bookForm">
+      <input type="text" id="bookTitle" placeholder="书名" required />
+      <input type="text" id="bookTags" placeholder="标签（如小说/植物）" />
+      <input type="text" id="bookQuote" placeholder="引用佳句" />
+      <textarea id="bookNotes" placeholder="读后感"></textarea>
+      <input type="file" id="bookCover" accept="image/*" />
+      <button type="submit">添加书籍</button>
+    </form>
+  </section>
 
-    <section class="shelf-controls">
-      <button id="add-book">➕ 添加一本</button>
-      <button id="remove-book">➖ 少一本</button>
-      <p>当前阅读总数：<span id="book-count">0</span></p>
-    </section>
+  <section class="books-container" id="booksContainer"></section>
 
-    <section id="book-shelf" class="book-shelf"></section>
+  <div id="bookModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookModal()">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalTags"></p>
+      <blockquote id="modalQuote"></blockquote>
+      <p id="modalNotes"></p>
+    </div>
+  </div>
 
-    <section class="upload-book">
-      <input type="text" id="book-title" placeholder="书名"/>
-      <input type="file" id="book-cover" accept="image/*"/>
-      <button id="upload-book">上传封面</button>
-    </section>
-
-    <section class="reading-log">
-      <table>
-        <thead>
-          <tr><th>书名</th><th>封面</th><th>备注</th></tr>
-        </thead>
-        <tbody id="reading-table-body"></tbody>
-      </table>
-    </section>
-
-  </main>
+  <div id="flowerZone" class="flower-zone"></div>
 
   <script src="reading.js"></script>
 </body>

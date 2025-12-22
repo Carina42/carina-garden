@@ -1,79 +1,158 @@
 
-:root {
-  --bg-color: #fdfcf7;
-  --text-color: #2d2d2d;
-  --accent: #c0e8d5;
-  --panel-bg: #ffffff;
-}
-
-body.dark {
-  --bg-color: #1a1a1a;
-  --text-color: #e0e0e0;
-  --accent: #a6d4c2;
-  --panel-bg: #2c2c2c;
-}
-
-body {
-  margin: 0;
+body.reading-page {
   font-family: "Helvetica Neue", sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background 0.4s, color 0.4s;
+  background-color: #f8f5f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-header {
-  background: var(--accent);
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.navbar {
+  background-color: #e3ddd5;
+  padding: 10px;
+  text-align: center;
 }
 
-.module, .module-grid > div {
-  background: var(--panel-bg);
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 1rem 0;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+.navbar nav a {
+  margin: 0 12px;
+  text-decoration: none;
+  color: #5a4d4a;
+  font-weight: bold;
 }
 
-.module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+.navbar nav a.active {
+  text-decoration: underline;
 }
 
-#bookshelf-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.bookshelf-decor {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
-.book-slot {
-  width: 60px;
-  height: 90px;
-  border: 1px dashed #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--panel-bg);
-}
-
-.book-slot img {
+.bookshelf-bg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0.35;
 }
 
-button {
-  margin: 0.2rem;
-  padding: 0.4rem 0.8rem;
-  border: none;
+.add-book-form {
+  padding: 20px;
+  background-color: #f0ebe4;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.add-book-form form input,
+.add-book-form form textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  background-color: var(--accent);
+}
+
+.add-book-form form button {
+  background-color: #c7b9a5;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
+.books-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px;
+  justify-content: center;
+}
+
+.book-card {
+  width: 120px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+  transform: scale(1.05);
+}
+
+.book-cover {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.book-label {
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+  color: #5a4d4a;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal .close {
+  position: absolute;
+  top: 10px; right: 20px;
+  font-size: 24px;
+  color: #888;
+  cursor: pointer;
+}
+
+.flower-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 998;
+}
+
+.flower-bloom {
+  position: absolute;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/765/765373.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: flower-rise 3s ease-out forwards;
+}
+
+@keyframes flower-rise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-200px) scale(1.2); opacity: 0; }
 }
