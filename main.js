@@ -1,300 +1,387 @@
-// 小娜花园 · main.js
-let timer;
-let timeLeft = 25 * 60;
-let isRunning = false;
-let completedCount = 0;
 
-// Morandi-ish soft colors for small random accents
-const morandi = [
-  {a:"#8aa39a", b:"#cbbfae"}, // fern + clay
-  {a:"#97a7b3", b:"#d6cbbd"}, // mist + oat
-  {a:"#9aa8a1", b:"#c9bdb0"}, // sage + sand
-  {a:"#a3a9be", b:"#cbb4a7"}, // lilac + rose clay
-  {a:"#7f9a90", b:"#bfb7aa"}, // moss + linen
-];
+(function(){
+  const $ = (id)=>document.getElementById(id);
 
-const woolfQuotes = [
-  "并不是要把生活打磨成完美，而是要把生活看清，然后继续爱它。",
-  "一间自己的房间，并不只是房间，而是呼吸、时间与自由的边界。",
-  "真正的生活在细微处闪烁：光落在杯沿、风穿过树叶、心忽然一松。",
-  "如果必须选择，我宁愿选择那一瞬间的清醒与灿烂。",
-  "写作像把手伸进水里：你看不见水底，但你知道那里有路。",
-  "人并非被大事件塑造，而是被无数小小的日常抚摸成形。",
-  "我想把世界写得更透明些，让每一缕光都有回声。",
-  "所谓合一，也许就是在碎裂之中仍能感到自己完整。",
-  "我们并不需要成为别人眼中的正确，我们只需要继续成为自己。",
-  "花园不回答问题，它只让你更靠近呼吸。",
-  "你可以慢一点。慢并不等于停。",
-  "恐惧像雾，走进去就会散；停在原地才会越来越浓。",
-  "做一点点就很好，一点点就是路。",
-  "把今天当作一株新芽：轻轻浇水，不必拽着它长大。",
-  "真正的勇敢不是不怕，而是怕着也仍然向前。",
-];
-
-function pickAccent() {
-  const pick = morandi[Math.floor(Math.random() * morandi.length)];
-  document.documentElement.style.setProperty('--accent', pick.a);
-  document.documentElement.style.setProperty('--accent-2', pick.b);
-  document.documentElement.style.setProperty('--sparkle', pick.a + "CC");
-  const bar = document.getElementById("yearProgressBar");
-  if (bar) bar.style.background = `linear-gradient(90deg, ${pick.a}, ${pick.b})`;
-}
-
-function setRandomQuote() {
-  const q = woolfQuotes[Math.floor(Math.random() * woolfQuotes.length)];
-  const el = document.getElementById("woolfQuote");
-  if (el) el.textContent = q;
-}
-
-function initYearProgress() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const end = new Date(now.getFullYear() + 1, 0, 1);
-  const total = Math.round((end - start) / 86400000);
-  const passed = Math.round((now - start) / 86400000);
-  const pct = Math.max(0, Math.min(100, Math.round((passed / total) * 100)));
-
-  const bar = document.getElementById("yearProgressBar");
-  const pctEl = document.getElementById("yearPercent");
-  const txt = document.getElementById("yearProgressText");
-  if (bar) bar.style.width = pct + "%";
-  if (pctEl) pctEl.textContent = pct + "%";
-  if (txt) txt.textContent = `已过 ${passed} 天 / 共 ${total} 天`;
-}
-
-function updateDisplay() {
-  const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-  const seconds = String(timeLeft % 60).padStart(2, '0');
-  const el = document.getElementById("timer");
-  if (el) el.textContent = `${minutes}:${seconds}`;
-}
-
-function togglePomodoro() {
-  if (isRunning) {
-    clearInterval(timer);
-    isRunning = false;
-    return;
+  // ---------- Woolf Quote (random each refresh) ----------
+  function renderQuote(){
+    try{
+      if(window.WoolfQuotes && typeof window.WoolfQuotes.render === "function"){
+        window.WoolfQuotes.render("woolfQuote","woolfQuoteSource");
+      }
+    }catch(_){}
   }
-  isRunning = true;
-  timer = setInterval(() => {
-    timeLeft--;
-    updateDisplay();
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      isRunning = false;
-      timeLeft = 25 * 60;
-      completedCount++;
-      addCompletedTomato();
-      updateDisplay();
-      burstAt(document.getElementById("tomato"));
+
+// ---------- Countdown / progress ----------
+  function pct(a,b){ return Math.max(0, Math.min(100, (a/b)*100)); }
+  function setProgress(barId, textId, p, label){
+    const bar = $(barId);
+    const txt = $(textId);
+    if(bar) bar.style.width = `${p.toFixed(2)}%`;
+    if(txt) txt.textContent = label;
+  }
+  function updateTimeProgress(){
+    const now = new Date();
+
+    // Year
+    const y = now.getFullYear();
+    const startY = new Date(y,0,1,0,0,0,0);
+    const endY = new Date(y+1,0,1,0,0,0,0);
+    const yearPassed = now - startY;
+    const yearTotal = endY - startY;
+    const yearP = pct(yearPassed, yearTotal);
+    const daysLeft = Math.ceil((endY - now) / (1000*60*60*24));
+    setProgress("yearProgressBar","yearProgressText", yearP, `已过去 ${yearP.toFixed(1)}% · 还剩 ${daysLeft} 天`);
+
+    // Month
+    const startM = new Date(y, now.getMonth(), 1, 0,0,0,0);
+    const endM = new Date(y, now.getMonth()+1, 1, 0,0,0,0);
+    const monthP = pct(now - startM, endM - startM);
+    const mDaysLeft = Math.ceil((endM - now) / (1000*60*60*24));
+    setProgress("monthProgressBar","monthProgressText", monthP, `已过去 ${monthP.toFixed(1)}% · 还剩 ${mDaysLeft} 天`);
+
+    // Day
+    const startD = new Date(y, now.getMonth(), now.getDate(), 0,0,0,0);
+    const endD = new Date(y, now.getMonth(), now.getDate()+1, 0,0,0,0);
+    const dayP = pct(now - startD, endD - startD);
+    const minsLeft = Math.ceil((endD - now) / (1000*60));
+    const h = Math.floor(minsLeft/60), m = minsLeft%60;
+    setProgress("dayProgressBar","dayProgressText", dayP, `还剩 ${h}h ${m}m · 今日已走过 ${dayP.toFixed(1)}%`);
+  }
+
+  // ---------- Custom countdowns ----------
+  const CC_KEY = "chai_custom_countdowns_v6";
+  function loadCC(){
+    try{ return JSON.parse(localStorage.getItem(CC_KEY) || "[]"); }catch(_){ return []; }
+  }
+  function saveCC(list){
+    try{ localStorage.setItem(CC_KEY, JSON.stringify(list)); }catch(_){}
+  }
+  function renderCC(){
+    const listEl = $("ccList");
+    if(!listEl) return;
+    const list = loadCC();
+    listEl.innerHTML = "";
+    if(list.length===0){
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = "还没有自定义倒计时。比如：旅行、DDL、活动，都可以加进来。";
+      listEl.appendChild(empty);
+      return;
     }
-  }, 1000);
-}
-
-function resetPomodoro() {
-  clearInterval(timer);
-  isRunning = false;
-  timeLeft = 25 * 60;
-  updateDisplay();
-  burstAt(document.getElementById("tomato"));
-}
-
-function addCompletedTomato() {
-  const container = document.getElementById("completedTomatoes");
-  if (!container) return;
-  const dot = document.createElement("div");
-  dot.className = "done";
-  container.appendChild(dot);
-}
-
-function toggleChat() {
-  const chat = document.getElementById("chat-window");
-  if (!chat) return;
-  const now = chat.style.display === "block";
-  chat.style.display = now ? "none" : "block";
-  chat.setAttribute("aria-hidden", now ? "true" : "false");
-  if (!now) burstAt(document.getElementById("chat-button"));
-}
-
-function saveMoodTodo() {
-  const mood = document.getElementById("moodInput")?.value ?? "";
-  const todo = document.getElementById("todoInput")?.value ?? "";
-  localStorage.setItem("todayMood", mood);
-  localStorage.setItem("todayTodo", todo);
-  updateMoodTodoDisplay();
-  burstAt(document.querySelector(".mood-card .btn-primary"));
-}
-
-function clearMoodTodo() {
-  localStorage.removeItem("todayMood");
-  localStorage.removeItem("todayTodo");
-  document.getElementById("moodInput") && (document.getElementById("moodInput").value = "");
-  document.getElementById("todoInput") && (document.getElementById("todoInput").value = "");
-  updateMoodTodoDisplay();
-  burstAt(document.querySelector(".mood-card .btn-soft"));
-}
-
-function updateMoodTodoDisplay() {
-  const mood = localStorage.getItem("todayMood") || "（还没记录）";
-  const todo = localStorage.getItem("todayTodo") || "（还没设置）";
-  const m = document.getElementById("moodDisplay");
-  const t = document.getElementById("todoDisplay");
-  if (m) m.textContent = `今日心情：${mood}`;
-  if (t) t.textContent = `待办优先事项：${todo}`;
-}
-
-// ---- Small interactive animation: petals ----
-function burstAt(target, n = 10) {
-  if (!target) return;
-  const rect = target.getBoundingClientRect();
-  const x = rect.left + rect.width / 2;
-  const y = rect.top + rect.height / 2;
-  spawnPetals(x, y, n);
-}
-
-function spawnPetals(x, y, n = 10) {
-  for (let i = 0; i < n; i++) {
-    const p = document.createElement("span");
-    p.className = "petal";
-    const dx = (Math.random() * 120 - 60);
-    const dy = (Math.random() * 120 - 60);
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-    p.style.setProperty("--x0", "0px");
-    p.style.setProperty("--y0", "0px");
-    p.style.setProperty("--x1", dx + "px");
-    p.style.setProperty("--y1", dy + "px");
-    p.style.background = `rgba(${Math.floor(120+Math.random()*60)}, ${Math.floor(140+Math.random()*60)}, ${Math.floor(130+Math.random()*60)}, .85)`;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 950);
+    const now = new Date();
+    list
+      .sort((a,b)=> (a.date||"").localeCompare(b.date||""))
+      .forEach((it, idx)=>{
+        const d = new Date(it.date+"T00:00:00");
+        const diff = Math.ceil((d - now)/(1000*60*60*24));
+        const row = document.createElement("div");
+        row.className = "cc-item";
+        row.innerHTML = `
+          <div class="cc-left">
+            <div class="cc-title">${escapeHtml(it.title||"未命名")}</div>
+            <div class="cc-sub">${it.date} · ${diff>=0 ? `还有 ${diff} 天` : `已过去 ${Math.abs(diff)} 天`}</div>
+          </div>
+          <button class="cc-del" title="删除">🗑️</button>
+        `;
+        row.querySelector(".cc-del").addEventListener("click", ()=>{
+          const next = loadCC().filter((_,i)=>i!==idx);
+          saveCC(next);
+          renderCC();
+        });
+        listEl.appendChild(row);
+      });
   }
-}
 
-// ---- Weather (simple): geolocation -> open-meteo fallback ----
-async function initWeather() {
-  const pill = document.getElementById("weatherPill");
-  if (!pill) return;
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-  // fallback: Zhengzhou
-  const fallback = { lat: 34.7466, lon: 113.6254, name: "郑州" };
+  // ---------- Weather (Open-Meteo, no key) ----------
+  // https://open-meteo.com/
+  function weatherCodeToKind(code){
+    // categories
+    if(code===0) return {kind:"sun", emoji:"☀️", label:"晴"};
+    if([1,2,3].includes(code)) return {kind:"cloud", emoji:"⛅", label:"多云"};
+    if([45,48].includes(code)) return {kind:"cloud", emoji:"🌫️", label:"雾"};
+    if([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain", emoji:"🌧️", label:"雨"};
+    if([71,73,75,77,85,86].includes(code)) return {kind:"snow", emoji:"🌨️", label:"雪"};
+    if([95,96,99].includes(code)) return {kind:"rain", emoji:"⛈️", label:"雷暴"};
+    return {kind:"cloud", emoji:"⛅", label:"天气"};
+  }
 
-  function setText(text){ pill.textContent = text; }
+  async function fetchWeather(lat, lon){
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto`;
+    const res = await fetch(url, {cache: "no-store"});
+    if(!res.ok) throw new Error("weather_fetch_failed");
+    return await res.json();
+  }
 
-  let lat = fallback.lat, lon = fallback.lon, place = fallback.name;
 
-  try {
-    if (navigator.geolocation) {
-      const pos = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: false, timeout: 6000 });
+  
+  const WEATHER_KEY = "chai_weather_cache_v7";
+  function saveWeatherCache(obj){
+    try{ localStorage.setItem(WEATHER_KEY, JSON.stringify(obj)); }catch(_){}
+  }
+  function loadWeatherCache(){
+    try{ return JSON.parse(localStorage.getItem(WEATHER_KEY)||"null"); }catch(_){ return null; }
+  }
+
+function setWeatherUI(placeName, tempC, code, wind){
+    const w = weatherCodeToKind(code);
+    const locChip = $("locationChip");
+    const chip = $("weatherChip");
+    const big = $("weatherBig");
+    const cond = $("weatherCond");
+    const temp = $("weatherTemp");
+    const windEl = $("weatherWind");
+    if(locChip) locChip.textContent = `📍 ${placeName}`;
+    if(chip) chip.textContent = `${w.emoji} ${w.label} · ${tempC}°C`;
+    if(big) big.textContent = w.emoji;
+    if(cond) cond.textContent = w.label;
+    if(temp) temp.textContent = `${tempC}°C`;
+    if(windEl) windEl.textContent = `${wind} km/h`;
+    renderOrnaments(w.kind);
+  }
+
+  function renderOrnaments(kind){
+    const box = $("weatherOrnaments");
+    if(!box) return;
+    box.innerHTML = "";
+    const corners = [
+      {x:"26px", y:"26px"},
+      {x:"calc(100% - 60px)", y:"28px"},
+      {x:"28px", y:"calc(100% - 66px)"},
+      {x:"calc(100% - 62px)", y:"calc(100% - 68px)"},
+    ];
+    const leafs = [
+      {x:"calc(50% - 14px)", y:"18px"},
+      {x:"calc(50% - 18px)", y:"calc(100% - 58px)"},
+    ];
+    const icon = kind==="sun" ? "☀️" : kind==="rain" ? "🌧️" : kind==="snow" ? "🌨️" : "☁️";
+    const cls = kind==="sun" ? "sun" : kind==="rain" ? "rain" : kind==="snow" ? "snow" : "cloud";
+    corners.forEach((c,i)=>{
+      const d = document.createElement("div");
+      d.className = `orn ${cls}`;
+      d.textContent = icon;
+      d.style.left = c.x;
+      d.style.top = c.y;
+      d.style.animationDelay = `${i*0.25}s`;
+      box.appendChild(d);
+    });
+    leafs.forEach((c,i)=>{
+      const d = document.createElement("div");
+      d.className = "orn leaf";
+      d.textContent = "🍃";
+      d.style.left = c.x;
+      d.style.top = c.y;
+      d.style.animationDelay = `${0.15+i*0.4}s`;
+      box.appendChild(d);
+    });
+  }
+
+  async function initWeather(){
+    // Fallback: Zhengzhou
+    let lat = 34.7466, lon = 113.6254, place = "郑州";
+    try{
+      const pos = await new Promise((resolve, reject)=>{
+        if(!navigator.geolocation) return reject(new Error("no_geo"));
+        navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy:false, timeout: 7000, maximumAge: 15*60*1000});
       });
       lat = pos.coords.latitude;
       lon = pos.coords.longitude;
       place = "当前位置";
+    }catch(_){ /* keep fallback */ }
+
+    try{
+      const data = await fetchWeather(lat, lon);
+      const cur = data.current;
+      const tempC = Math.round(cur.temperature_2m);
+      const code = cur.weather_code;
+      const wind = Math.round(cur.wind_speed_10m);
+      setWeatherUI(place, tempC, code, wind);
+      saveWeatherCache({place, lat, lon, tempC, code, wind, ts: Date.now()});
+    }catch(_){
+      // graceful
+      const cached = loadWeatherCache();
+      if(cached && cached.tempC!=null){
+        setWeatherUI(cached.place || place, cached.tempC, cached.code ?? 2, cached.wind ?? "—");
+      }else{
+        setWeatherUI(place, "—", 2, "—");
+      }
     }
-  } catch (_) {
-    // ignore
   }
 
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const t = data?.current?.temperature_2m;
-    const code = data?.current?.weather_code;
-    setText(`天气：${place} · ${typeof t === "number" ? t.toFixed(0) + "°C" : "--"} · ${codeToText(code)}`);
-  } catch (_) {
-    setText(`天气：${place} · 暂不可用`);
+  // ---------- Summary (pull from localStorage written by pages) ----------
+  function readJSON(key, fallback){
+    try{ return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; }catch(_){ return fallback; }
   }
-}
+  function updateSummary(){
+    const books = readJSON("chai_books_v6", []);
+    const writing = readJSON("chai_writing_v6", {});
+    const exercise = readJSON("chai_exercise_v6", []);
+    const sleep = readJSON("chai_sleep_v6", []);
 
-function codeToText(code){
-  if (code === undefined || code === null) return "—";
-  // Very small mapping for a gentle UI label
-  if ([0].includes(code)) return "晴";
-  if ([1,2,3].includes(code)) return "多云";
-  if ([45,48].includes(code)) return "雾";
-  if ([51,53,55,61,63,65,80,81,82].includes(code)) return "雨";
-  if ([71,73,75,77,85,86].includes(code)) return "雪";
-  if ([95,96,99].includes(code)) return "雷雨";
-  return "天气";
-}
+    const todayKey = new Date().toISOString().slice(0,10);
+    const wroteToday = writing?.daily?.[todayKey]?.words || 0;
+    const exToday = exercise.filter(x=>x.date===todayKey).reduce((a,b)=>a+(Number(b.minutes)||0),0);
+    const sleepToday = sleep.find(x=>x.date===todayKey)?.hours || 0;
+    const readToday = books.filter(b=>b.finishedDate===todayKey).length;
 
-// ---- Offline tiny chat ----
-function chaiReply(text){
-  const t = (text || "").trim();
-  if (!t) return "小娜，我在。你想先从哪一块开始？";
-  const lower = t.toLowerCase();
+    const set = (id, val)=> { const el=$(id); if(el) el.textContent = String(val); };
+    set("sumReading", readToday);
+    set("sumWriting", wroteToday);
+    set("sumExercise", exToday);
+    set("sumSleep", sleepToday);
 
-  const has = (arr) => arr.some(k => t.includes(k) || lower.includes(k));
-  if (has(["焦虑","难受","低落","崩","烦","压力"])) return "先别急着证明自己。我们做一个最小动作：喝口水、坐起来、写下今天最重要的一句。";
-  if (has(["写作","写","码","论文","开题","大纲"])) return "写作就像浇水：不需要一次浇透。今天先 10 分钟，写一句最核心的‘合一’。";
-  if (has(["读书","阅读","书","文献"])) return "那就把这本书先摆上书架。哪怕只写一句：它给你什么感觉？";
-  if (has(["睡不着","熬夜","困","睡眠"])) return "我们把灯调暗一点：先做一个‘收尾仪式’——关掉多余标签页，写下明天第一步。";
-  if (has(["运动","走路","疼","骶髂","腰"])) return "身体在提醒你要温柔一点。今天做轻量：5 分钟拉伸 + 3 次深呼吸，够了。";
-  if (has(["开心","好耶","完成","有进展"])) return "好！这就是花园在长。把这个小胜利写进摘要里，我们让它发芽。";
-  return "收到。我们把它拆成两步：第一步现在就能做的一点点；第二步留给明天。你更想先做哪一步？";
-}
-
-function appendChat(role, text){
-  const body = document.querySelector(".chat-body");
-  if (!body) return;
-  const div = document.createElement("div");
-  div.className = "chat-bubble " + (role === "me" ? "me" : "bot");
-  div.textContent = text;
-  body.appendChild(div);
-  body.scrollTop = body.scrollHeight;
-}
-
-function setupChat(){
-  const btn = document.getElementById("chat-button");
-  const close = document.getElementById("chat-close");
-  const send = document.getElementById("chatSend");
-  const input = document.getElementById("chatInput");
-  if (btn) btn.addEventListener("click", () => toggleChat());
-  if (close) close.addEventListener("click", () => toggleChat());
-  if (send && input){
-    const doSend = () => {
-      const msg = input.value.trim();
-      if (!msg) return;
-      appendChat("me", msg);
-      input.value = "";
-      setTimeout(() => appendChat("bot", chaiReply(msg)), 220);
-      burstAt(send, 8);
-    };
-    send.addEventListener("click", doSend);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") doSend(); });
+    // mood & top todo restore
+    const mood = localStorage.getItem("chai_mood_v6") || "";
+    const topTodo = localStorage.getItem("chai_top_todo_v6") || "";
+    const moodInput = $("moodInput");
+    const topTodoInput = $("topTodoInput");
+    const topTodoDisplay = $("topTodoDisplay");
+    if(moodInput && mood) moodInput.value = mood;
+    if(topTodoInput && topTodo) topTodoInput.value = topTodo;
+    if(topTodoDisplay) topTodoDisplay.textContent = topTodo ? `今天最重要：${topTodo}` : "还没写最优先事项。";
   }
-}
 
-function setupOrnaments(){
-  document.querySelectorAll(".ornament").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      spawnPetals(e.clientX, e.clientY, 14);
+  function initMoodTodo(){
+    const moodInput = $("moodInput");
+    const topTodoInput = $("topTodoInput");
+    const moodHint = $("moodSavedHint");
+    const topTodoDisplay = $("topTodoDisplay");
+
+    $("saveMoodBtn")?.addEventListener("click", ()=>{
+      const v = (moodInput?.value || "").trim();
+      localStorage.setItem("chai_mood_v6", v);
+      if(moodHint) moodHint.textContent = v ? "已保存。" : "已清空。";
+      setTimeout(()=>{ if(moodHint) moodHint.textContent=""; }, 1200);
     });
-    // gentle sway
-    const d = (Math.random() * 1.2 + .8).toFixed(2);
-    btn.style.transition = `transform ${d}s ease, filter .2s ease`;
-  });
-}
-
-window.addEventListener("load", () => {
-  pickAccent();
-  setRandomQuote();
-  initYearProgress();
-  initWeather();
-
-  const refresh = document.getElementById("refreshQuote");
-  if (refresh) refresh.addEventListener("click", (e) => { setRandomQuote(); spawnPetals(e.clientX, e.clientY, 10); });
-
-  updateDisplay();
-  updateMoodTodoDisplay();
-
-  const tomato = document.getElementById("tomato");
-  if (tomato) {
-    tomato.addEventListener("click", togglePomodoro);
-    tomato.addEventListener("dblclick", resetPomodoro);
+    $("saveTopTodoBtn")?.addEventListener("click", ()=>{
+      const v = (topTodoInput?.value || "").trim();
+      localStorage.setItem("chai_top_todo_v6", v);
+      if(topTodoDisplay) topTodoDisplay.textContent = v ? `今天最重要：${v}` : "还没写最优先事项。";
+    });
   }
 
-  setupChat();
-  setupOrnaments();
-});
+  // ---------- Pomodoro ----------
+  function initPomodoro(){
+    const btn = $("tomatoBtn");
+    const timeEl = $("pomodoroTime");
+    const line = $("tomatoLine");
+
+    if(!btn || !timeEl || !line) return;
+
+    const KEY = "chai_pomo_v6";
+    const state = readJSON(KEY, {secLeft:1500, running:false, done:0, lastTick:0});
+    let secLeft = state.secLeft || 1500;
+    let running = !!state.running;
+    let done = state.done || 0;
+    let timerId = null;
+
+    function fmt(s){
+      const m = Math.floor(s/60);
+      const ss = s%60;
+      return `${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+    }
+    function render(){
+      timeEl.textContent = fmt(secLeft);
+      line.innerHTML = "";
+      for(let i=0;i<done;i++){
+        const span = document.createElement("span");
+        span.textContent = "🍅";
+        line.appendChild(span);
+      }
+    }
+    function save(){
+      localStorage.setItem(KEY, JSON.stringify({secLeft, running, done, lastTick: Date.now()}));
+    }
+    function stop(){
+      if(timerId) clearInterval(timerId);
+      timerId = null;
+      running = false;
+      save();
+    }
+    function start(){
+      if(timerId) return;
+      running = true;
+      save();
+      timerId = setInterval(()=>{
+        secLeft--;
+        if(secLeft <= 0){
+          done++;
+          secLeft = 1500;
+          bloom(); // celebrate
+        }
+        render();
+        save();
+      }, 1000);
+    }
+
+    // Resume with drift correction
+    if(running && state.lastTick){
+      const elapsed = Math.floor((Date.now() - state.lastTick)/1000);
+      secLeft = Math.max(0, secLeft - elapsed);
+    }
+
+    btn.addEventListener("click", ()=>{
+      if(running) stop();
+      else start();
+    });
+    btn.addEventListener("dblclick", ()=>{
+      stop();
+      secLeft = 1500;
+      render();
+      save();
+    });
+
+    function bloom(){
+      // small subtle bloom on index
+      const zone = document.createElement("div");
+      zone.className = "flower-zone";
+      zone.style.position = "fixed";
+      zone.style.inset = "0";
+      zone.style.pointerEvents = "none";
+      zone.style.zIndex = "60";
+      document.body.appendChild(zone);
+      for(let i=0;i<5;i++){
+        const f = document.createElement("div");
+        f.className = "flower";
+        f.style.left = (Math.random()*80 + 10) + "%";
+        f.style.top = (Math.random()*20 + 70) + "%";
+        f.style.animationDelay = (Math.random()*0.2) + "s";
+        zone.appendChild(f);
+      }
+      setTimeout(()=>zone.remove(), 3800);
+    }
+
+    render();
+    if(running) start();
+  }
+
+  // ---------- init ----------
+  document.addEventListener("DOMContentLoaded", ()=>{
+    renderQuote();
+
+    initWeather();
+    updateTimeProgress();
+    setInterval(updateTimeProgress, 20_000);
+
+    renderCC();
+    $("ccAdd")?.addEventListener("click", ()=>{
+      const title = ($("ccTitle")?.value || "").trim();
+      const date = ($("ccDate")?.value || "").trim();
+      if(!title || !date) return;
+      const list = loadCC();
+      list.push({title, date});
+      saveCC(list);
+      if($("ccTitle")) $("ccTitle").value = "";
+      renderCC();
+    });
+
+    updateSummary();
+    initMoodTodo();
+
+    initPomodoro();
+  });
+
+})();
